@@ -35,7 +35,8 @@ function renderVNode(dom,data){
   this.warpHtml = this.root.outerHTML.replace(this.root.innerHTML,'');
 }
 
-renderVNode.prototype.render = function(data,wue){
+/** isprint参数 是否打印错误 */
+renderVNode.prototype.render = function(data,wue,isprint){
 
   let child  = null;
   let childs = [].slice.call( this.root.childNodes );
@@ -49,6 +50,7 @@ renderVNode.prototype.render = function(data,wue){
   props.attributes['w-for'] && (this.isForRender = true);
   
   /** 是否组件对属性的处理 */
+  
   if( wue.__isComponent && (!wue.isReplaceEl) ){
     /** isReplaceEl 组件的el要替换成挂载在docment节点上的节点 否则diff无反应 也可以进行组件的局部刷新 */
     wue.isReplaceEl = true;
@@ -70,11 +72,11 @@ renderVNode.prototype.render = function(data,wue){
         props.attributes['w-for'] && (childVNode.delayForRender = true);
       }
       /** 递归对子节点渲染 */
-      renderChilds = childVNode.render(data,wue);
+      renderChilds = childVNode.render(data,wue,isprint);
       isArray(renderChilds) ? ( childsVNode = [].concat( childsVNode,renderChilds ) ) : childsVNode.push( renderChilds );
     /*Text节点*/ 
     }else if(child.nodeType === 3){
-      childsVNode.push(  this.createVText( this.isForRender ? child.data : findTmpText(child.data,data) )  )
+      childsVNode.push(  this.createVText( this.isForRender ? child.data : findTmpText(child.data,data,isprint) )  )
     /*注释节点*/
     }else if(child.nodeType === 8){
       childsVNode.push(this.createVText(''))
@@ -87,13 +89,26 @@ renderVNode.prototype.render = function(data,wue){
 }
 
 renderVNode.prototype.createVNode = function(tagName,properties,children,data,wue){
-  
-  if( !isEmptyObject(data) &&  Wue.components.get(tagName.toLowerCase())){
-    return Wue.components.get(tagName.toLowerCase()).vnode
+
+  // 组件的 tagName 不能传入aBxxxCxxx 这样的标签 应该获取的 节点的tagName获得到的标签名全是大写 无法分辨正确组件标签名称
+  // 暂时这么处理 这是非常耗性能的做法
+  // · 暂时想到的解决思路 用正则把标签名取到 不使用tagName获取组件名称
+  // 可以把components中的标签名更改为使用者编写的标签名 下次就可以直接获取到 不用遍历 性能可以优化许多.
+  for( let [ componentName,component ] of Wue.components ){
+    if( new RegExp(`^${tagName}$`,'i').test( componentName ) ){ 
+      let vnode = new VNode(tagName,properties,children);
+      vnode  = this.delayForRender ? vnode : handleWueInDirective(wue,data,vnode);
+      let { properties:{ attributes } } = vnode;
+
+      // component.props.forEach( prop => {
+        // attributes[prop] && (component.data[prop] = attributes[prop]);
+      // })
+
+      return component.vnode;
+    }
   }
 
   let vnode = new VNode(tagName,properties,children);
-  
   vnode  = this.delayForRender ? vnode : handleWueInDirective(wue,data,vnode);
   return vnode;
 

@@ -128,13 +128,10 @@ wueInDirective['w-bind'] = (vnode,propkey,data,wue) => {
       return vnode; 
   }
 
-
   const props = vnode.properties;
   const bindProp = propkey.replace(/^w-bind\:|^\:/,'');
   const modle = props.attributes[propkey];
   var ret = parseAst(modle,data);
-
-  console.log(bindProp)
 
   /** 
    *  我觉得 :class 与 :style 只能够传一层
@@ -393,7 +390,6 @@ wueInDirective['w-on'] = (vnode,propkey,data,wue) => {
     const props = vnode.properties;
     const EventType = propkey.replace(/^\@|^w-on:/,'');
     const EventHandle = props.attributes[propkey]
-
     // console.log( parseWOn( EventHandle,wue.data ) );    
     //diff 后会重新绑定事件问题 
     //@event 写入属性报错问题
@@ -481,14 +477,25 @@ wueInDirective['w-once'] = (vnode,propkey,data,wue) => {
 const handleWueInDirective = (wue,data,vnode)=>{
 
     const props = vnode.properties;
-    let directive = '';
+    /** priorityDirective 存放不会转成wight的指令 , laterDirective 则相反 */
+    const priorityDirective = [], laterDirctive = [];
+
     // w-model 其实也属于 w-on 其实就是表单 用input或者change 做成双向数据绑定。 
+    // wue-directive处理的顺序是编写渲染模板的人对指令设置的顺序。
     // w-model w-once w-on 会把vnode 写成 widget Function 设置为最后
+    
+    /** 为处理的指令调整下顺序 */
     Object.keys(props.attributes).forEach(propkey=>{
        /* w-bind:属性 与 :属性 交给 w-bind 处理 */ 
-       propkey.match(/^w-bind|^\:/) ? ( directive = 'w-bind' ) : ( directive = propkey );
-       propkey.match(/^w-on|^\@/) ? ( directive = 'w-on' ) : ( directive = propkey );
-       wueInDirective[directive] && (vnode = wueInDirective[directive](vnode,propkey,data,wue) );
+       if( propkey.match(/^w-bind|^\:/) ) priorityDirective.push( { directive:'w-bind',propkey } )
+       /* @event 会在prop 处理中 变成 w-on:event 因为@event setAttibute 会报错 */
+       else if( propkey.match(/^w-on|^\@/) ) laterDirctive.push( { directive:'w-on',propkey } )
+       else if( propkey === 'w-model' || propkey === 'w-once' ) laterDirctive.push( { directive:'w-model',propkey} )
+       else priorityDirective.push( { directive:propkey,propkey } )
+    })
+
+    priorityDirective.concat(laterDirctive).forEach(prop =>{
+        wueInDirective[prop.directive] && (vnode = wueInDirective[prop.directive](vnode,prop.propkey,data,wue) );
     })
 
     return vnode;

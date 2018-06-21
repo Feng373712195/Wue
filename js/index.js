@@ -72,6 +72,9 @@ const warn = require('./warn').default;
      * Wue.component 可以访问
      */
     this.__proto__.component = Wue.component;
+    this.__proto__.set = function(setdata){
+      Wue.set( this.data,setdata,this );
+    };
 
     // this.prototype.component = Wue.component;
   }
@@ -176,7 +179,7 @@ const warn = require('./warn').default;
         },
         set(newValue){
           watch(x,data[x],newValue,wue);
-          observer(x,newValue,data,wue);
+          observer(x,newValue,wue.observerdata,wue);
         },
         enumerable : true,
         configurable : true
@@ -225,16 +228,18 @@ const warn = require('./warn').default;
     wue.watch[key] && wue.watch[key].bind(wue,newVal,oldVal)();
   }
 
+
+  /** 第三个参数有点多余 待修改 */
   function observer(key,newValue,observerdata,wue){
 
-      console.log('observer');
-
       observerdata[key] = newValue;
+      
+      // console.log( observerdata )
+      // console.log( wue.observerdata );
 
-      /** 使用wue.set后 olddata 查找不到modele render的try/catch会抛出错误 
-       * try/catch这东西不会冒泡 里面的try/cathch抛出错误 外面的就捕获不到了 */
-      var currentVnode = new renderVNode( createElement( wue.noRenderVNode ) ).render( wue.olddata,wue,false );   
+      var currentVnode = new renderVNode( createElement( wue.noRenderVNode ) ).render( wue.olddata,wue,false );         
       var updateVnode  =  new renderVNode( createElement( wue.noRenderVNode ) ).render( wue.observerdata,wue,true );
+
       var patches = diff( currentVnode,updateVnode );
 
       /* 如果是w-modle元素不更新 以后这块判断会增加更多逻辑 */
