@@ -13,6 +13,7 @@ console.log( 'directive' );
 /** 常用方法 */
 const {  isUdf,
     isObject,
+    isNumber,
     isString,
     isEmptyObject,
     isPlainObject,
@@ -244,8 +245,7 @@ wueInDirective['w-if'] = (vnode,propkey,data,wue) =>{
   //w-if 嵌套 w-if
   const props = vnode.properties;
   const condition = props.attributes[propkey];
-  const parseCondition = parseAst(condition,data)
-                                                                  
+  const parseCondition = parseAst(condition,data)                                                                  
   wIftodo.push( {} );
   const currtIftodo = wIftodo[wIfcount-1];
   currtIftodo.count = 1;
@@ -253,12 +253,13 @@ wueInDirective['w-if'] = (vnode,propkey,data,wue) =>{
   currtIftodo.renderNode = function(vnode){
     const idx = this.ifconditions.indexOf(true);
     let count = this.count;
-    const rendernode = ( idx !== -1 && idx === (count-1) ) ? vnode : new VText('')
+    const rendernode = ( idx !== -1 && idx === (count-1) ) ? vnode : new VText('');
+    
     ++this.count;
     return rendernode;
   } 
 
-  return currtIftodo.renderNode.bind(currtIftodo)();
+  return currtIftodo.renderNode.bind(currtIftodo,vnode)();
 
 }
 
@@ -309,6 +310,8 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
   const condition = props.attributes[propkey];
   const ret = parseWforAst(condition,data);
 
+  console.log(ret)
+
   const vnodes = [];
   const nestForVnode = [];
 
@@ -335,6 +338,10 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
   const forRenderHandler = (wue,node,fordata,data) =>{
 
    const blendData = Object.assign(data,fordata);
+
+   console.log('im blendData')
+   console.log(blendData)
+
    const nestForHandler = [];
    node.children.map((childnode,index)=>{
         if( isVtext(childnode) && childnode.text.trim() ){
@@ -345,6 +352,7 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
         if( isVnode(childnode) && !childnode.properties.attributes['w-for'] ){
             return forRenderHandler(wue,childnode,fordata,data);
         }else if( isVnode(childnode) && childnode.properties.attributes['w-for']  ){
+            /** 嵌套循环if */
             let forVnodes = handleWueInDirective(wue,blendData,childnode);
             nestForHandler.push( () => { node.children.splice.apply(node.children,[index,1,...forVnodes]) });
         }else{
@@ -360,18 +368,31 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
 
   let forvnodes = [];
 
-  Object.keys(d).forEach((key,index)=>{
+  if(isNumber(d)){
+    for(let idx = 0; idx < d; idx++){
 
-      let fordata = {};
-      i && ( fordata[i] = index );
-      k && ( fordata[k] = key );
-      v && ( fordata[v] = d[key] );
+        let fordata = {};
+        i && ( fordata[i] = undefined );
+        k && ( fordata[k] = idx );
+        v && ( fordata[v] = idx );
 
-      let cloneVnode = deepCloneVnode(vnode);
-      cloneVnode.properties.attributes['w-for'] = ret.expression;
-      forvnodes.push( forRenderHandler(wue,cloneVnode,fordata,data)  );
-  })
+        let cloneVnode = deepCloneVnode(vnode);
+        cloneVnode.properties.attributes['w-for'] = ret.expression;
+        forvnodes.push( forRenderHandler(wue,cloneVnode,fordata,data)  );
+    }
+  }else{
+    Object.keys(d).forEach((key,index)=>{
 
+        let fordata = {};
+        i && ( fordata[i] = index );
+        k && ( fordata[k] = key );
+        v && ( fordata[v] = d[key] );
+  
+        let cloneVnode = deepCloneVnode(vnode);
+        cloneVnode.properties.attributes['w-for'] = ret.expression;
+        forvnodes.push( forRenderHandler(wue,cloneVnode,fordata,data)  );
+    })
+  }
 
   return forvnodes; 
 
@@ -393,31 +414,35 @@ wueInDirective['w-on'] = (vnode,propkey,data,wue) => {
     // console.log( parseWOn( EventHandle,wue.data ) );    
     //diff 后会重新绑定事件问题 
     //@event 写入属性报错问题
-    var WOnWidget = function (){};
-    WOnWidget.prototype.type = "Widget";
 
-    //组件的wue.el 就是一个dom节点 并没有挂载在docment上
-    //所以组件在wue.el绑定事件 只是一个dom上绑定事件 在html点击对应dom是没有反应的
-    WOnWidget.prototype.init = function(){
-        let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
-        // EntrustHandle (node,eventtype,methodName,wue,e)
-        let bindEl = wue.__isComponent?wue.prante.el:wue.el;
-        bindEl.addEventListener(EventType,EntrustHandle.bind(bindEl,node,parseWOn( EventHandle,wue.data,wue ),wue));
-        return node;
-    }
-    WOnWidget.prototype.update = function(){
-        console.log('update');  
-    } 
-    WOnWidget.prototype.destroy = function(node){
-        //组件销毁应该清除事件
-        console.log('destroy');
-    }
+    /** oldCode */
+    // var WOnWidget = function (){};
+    // WOnWidget.prototype.type = "Widget";
 
-    return new WOnWidget();
+    // //组件的wue.el 就是一个dom节点 并没有挂载在docment上
+    // //所以组件在wue.el绑定事件 只是一个dom上绑定事件 在html点击对应dom是没有反应的
+    // WOnWidget.prototype.init = function(){
+    //     let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
+    //     // EntrustHandle (node,eventtype,methodName,wue,e)
+    //     let bindEl = wue.__isComponent?wue.prante.el:wue.el;
+    //     bindEl.addEventListener(EventType,EntrustHandle.bind(bindEl,node,parseWOn( EventHandle,wue.data,wue ),wue));
+    //     return node;
+    // }
+    // WOnWidget.prototype.update = function(){
+    //     console.log('update');  
+    // } 
+    // WOnWidget.prototype.destroy = function(node){
+    //     //组件销毁应该清除事件
+    //     console.log('destroy');
+    // }
+    // return new WOnWidget();
 
+    return vnode
 }
 
 wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
+
+    console.log('w-model')
 
     if(isEmptyObject(data)){
         return vnode;
@@ -455,21 +480,19 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
 } 
 
 wueInDirective['w-once'] = (vnode,propkey,data,wue) => {
+    
+    console.log('w-once')
 
     if(isEmptyObject(data)){
         return vnode; 
     }
-  
-    var WOnceWidget = function (){};
-    WOnceWidget.prototype.type = "Widget";
-    WOnceWidget.prototype.domtype = 'WOnce'
-  
-    WOnceWidget.prototype.init = function(){
-      let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
-      return node;
+
+    /** 不进行diff */
+    if( wue.init_render ){
+        vnode.nodiff = true;
     }
-  
-    return new WOnceWidget();
+
+    return vnode
   
 }
   
@@ -483,14 +506,15 @@ const handleWueInDirective = (wue,data,vnode)=>{
     // w-model 其实也属于 w-on 其实就是表单 用input或者change 做成双向数据绑定。 
     // wue-directive处理的顺序是编写渲染模板的人对指令设置的顺序。
     // w-model w-once w-on 会把vnode 写成 widget Function 设置为最后
-    
+
     /** 为处理的指令调整下顺序 */
     Object.keys(props.attributes).forEach(propkey=>{
        /* w-bind:属性 与 :属性 交给 w-bind 处理 */ 
        if( propkey.match(/^w-bind|^\:/) ) priorityDirective.push( { directive:'w-bind',propkey } )
        /* @event 会在prop 处理中 变成 w-on:event 因为@event setAttibute 会报错 */
-       else if( propkey.match(/^w-on|^\@/) ) laterDirctive.push( { directive:'w-on',propkey } )
-       else if( propkey === 'w-model' || propkey === 'w-once' ) laterDirctive.push( { directive:'w-model',propkey} )
+       else if( propkey.match(/^w-on:|^\@/) ) laterDirctive.push( { directive:'w-on',propkey } )
+       else if( propkey === 'w-model' ) laterDirctive.push( { directive:'w-model',propkey} )
+    //    else if( propkey === 'w-once' ) laterDirctive.push( { directive:propkey,propkey} )
        else priorityDirective.push( { directive:propkey,propkey } )
     })
 

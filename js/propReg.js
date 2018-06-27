@@ -1,5 +1,7 @@
 export default (tag,tagname)=>{
 
+    // console.log(tag)
+
     //暴力的检查 标签是否带有属性
     if( `${tag.replace(new RegExp(`${tagname}|\/\s?${tagname}`,'ig'),'').replace(/\<|\>/g,'')}` === '' ){
         return ''

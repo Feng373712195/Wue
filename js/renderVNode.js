@@ -32,7 +32,15 @@ function renderVNode(dom,data){
   this.isForRender = false;
   /** 是否嵌套的w-for模板 */
   this.delayForRender = false;
-  this.warpHtml = this.root.outerHTML.replace(this.root.innerHTML,'');
+
+  var { outerHTML,innerHTML } = this.root
+
+  //一个正则表达式菜逼的代码
+  var fTag = outerHTML.substr( 0,outerHTML.indexOf( '>' + innerHTML )) + '>';
+  var lTag = outerHTML.substr( ( fTag.length + innerHTML.length) , outerHTML.length );
+
+  this.warpHtml = `${fTag}${lTag}`;
+  
 }
 
 /** isprint参数 是否打印错误 */
@@ -41,11 +49,10 @@ renderVNode.prototype.render = function(data,wue,isprint){
   let child  = null;
   let childs = [].slice.call( this.root.childNodes );
   let childsVNode = [];
-
   let props  = sliceProp( 
                   propReg(this.warpHtml,this.root.tagName),
                );
-               
+                 
   /*是否for节点*/
   props.attributes['w-for'] && (this.isForRender = true);
   
@@ -58,7 +65,7 @@ renderVNode.prototype.render = function(data,wue,isprint){
     Hook.prototype.hook = function(node){ wue.el = node }
     props['my-hook'] = new Hook();
   }
-
+  
   for(let i = 0,len = childs.length;i<len;i++){  
     child = childs[i]
 
@@ -84,19 +91,32 @@ renderVNode.prototype.render = function(data,wue,isprint){
     
   }
 
-  return this.createVNode(this.root.tagName,props,childsVNode,data,wue)
+
+  // 获取Vnode Key
+  const getNodeKey = (props) =>{
+    if(props.hasOwnProperty('key')){
+      return props['key'] 
+    }else if(props.hasOwnProperty(':key')){
+      return findTmpText(`{{ ${props[':key']} }}`,data,isprint)
+    }else{
+      return undefined
+    }
+  }
+
+  return this.createVNode(this.root.tagName,props,childsVNode,data,wue,getNodeKey(props.attributes) )
 
 }
 
-renderVNode.prototype.createVNode = function(tagName,properties,children,data,wue){
+renderVNode.prototype.createVNode = function(tagName,properties,children,data,wue,key){
 
   // 组件的 tagName 不能传入aBxxxCxxx 这样的标签 应该获取的 节点的tagName获得到的标签名全是大写 无法分辨正确组件标签名称
   // 暂时这么处理 这是非常耗性能的做法
   // · 暂时想到的解决思路 用正则把标签名取到 不使用tagName获取组件名称
   // 可以把components中的标签名更改为使用者编写的标签名 下次就可以直接获取到 不用遍历 性能可以优化许多.
+
   for( let [ componentName,component ] of Wue.components ){
     if( new RegExp(`^${tagName}$`,'i').test( componentName ) ){ 
-      let vnode = new VNode(tagName,properties,children);
+      let vnode = new VNode(tagName,properties,children,key);
       vnode  = this.delayForRender ? vnode : handleWueInDirective(wue,data,vnode);
       let { properties:{ attributes } } = vnode;
 
@@ -108,7 +128,7 @@ renderVNode.prototype.createVNode = function(tagName,properties,children,data,wu
     }
   }
 
-  let vnode = new VNode(tagName,properties,children);
+  let vnode = new VNode(tagName,properties,children,key);  
   vnode  = this.delayForRender ? vnode : handleWueInDirective(wue,data,vnode);
   return vnode;
 

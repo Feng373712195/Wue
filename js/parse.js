@@ -256,7 +256,6 @@ function parseAst(expression,data,isprint){
   try{
     findIdentifier(ast.body[0],data);
   }catch(e){
-    console.log( isprint )
     isprint && console.error(e);
     //找不到模板 返回空字符串 不再继续往下执行
     return '';

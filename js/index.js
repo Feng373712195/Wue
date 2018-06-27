@@ -1,5 +1,4 @@
-const { diff,patch,h,create,VNode,VText } = require('virtual-dom');
-const  createElement  = require('virtual-dom/create-element');
+const { diff,patch,h,create,VNode,VText } = require('../models/virtual-dom');
 
 /** 常用方法 */
 const {  isUdf,
@@ -18,7 +17,6 @@ const sliceProp = require('./sliceProp').default;
 
 const warn = require('./warn').default;
 
-
 (function(){
 
   const dom = document;
@@ -33,6 +31,10 @@ const warn = require('./warn').default;
 
     const dom = document;
     this.el = isDom(option.el) ? option.el : isString(option.el) ? dom.querySelector( option.el ) : (console.error('option el error type'));
+    
+    /** 初始化渲染 */
+    this.init_render = false;
+    
     /** wue 方法 */
     this.methods = option.methods;
     this.observerdata = option.data;
@@ -61,8 +63,16 @@ const warn = require('./warn').default;
     }
     
     this.vnode = new renderVNode( this.el ).render( this.data,that );
+
     var patches = diff( that.noRenderVNode,that.vnode );
+
+    // console.log( patches );
+    // console.log( Wue.components );
+
     patch( that.el , patches );
+
+    //初始化加载完毕
+    this.init_render = true;
 
     /** 初始化时执行 */
     isFunction( option.beforeCreate ) && option.beforeCreate.apply(this);
@@ -113,7 +123,6 @@ const warn = require('./warn').default;
       /**组件识标 */
       wue.__isComponent = true
       wue.vnode = new renderVNode( wue.el ).render( wue.data,wue );
-
       return wue;
     }
 
@@ -237,19 +246,13 @@ const warn = require('./warn').default;
       // console.log( observerdata )
       // console.log( wue.observerdata );
 
-      var currentVnode = new renderVNode( createElement( wue.noRenderVNode ) ).render( wue.olddata,wue,false );         
-      var updateVnode  =  new renderVNode( createElement( wue.noRenderVNode ) ).render( wue.observerdata,wue,true );
+      var currentVnode = new renderVNode( create( wue.noRenderVNode ) ).render( wue.olddata,wue,false );         
+      var updateVnode  =  new renderVNode( create( wue.noRenderVNode ) ).render( wue.observerdata,wue,true );
+      
+
+      console.log( updateVnode );
 
       var patches = diff( currentVnode,updateVnode );
-
-      /* 如果是w-modle元素不更新 以后这块判断会增加更多逻辑 */
-      Object.keys(patches).forEach(k=>{
-        if( patches[k].vNode && ('domtype' in patches[k].vNode) && patches[k].vNode.domtype){
-          if(patches[k].vNode.domtype === 'WModel' || patches[k].vNode.domtype === 'WOnce'){
-              delete patches[k]
-          } 
-        }
-      })
 
       patch( wue.el , patches );
       

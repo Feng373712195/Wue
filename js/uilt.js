@@ -14,6 +14,10 @@ function isDom(obj){
   }
 }
 
+function isNumber(val){
+  return typeof val === 'number' && _toString.call(val) === '[object Number]' && isFinite(val)
+}
+
 function isString(val){
   return typeof val === 'string' && _toString.call(val) === '[object String]';
 }
@@ -81,6 +85,7 @@ function HumpTrunHyphen(str){
 module.exports  = {
     isUdf,
     isDom,
+    isNumber,
     isString,
     isObject,
     isFunction,

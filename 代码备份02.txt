@@ -32,3 +32,27 @@
 
     // domSetAttr(dom,props)
     // dom.innerHTML = innerHtml;
+
+
+     /* 如果是w-modle元素不更新 以后这块判断会增加更多逻辑 */
+     // Object.keys(patches).forEach(k=>{
+     //   // if( patches[k].vNode && ('domtype' in patches[k].vNode) && patches[k].vNode.domtype){
+     //   //   if(patches[k].vNode.domtype === 'WModel' || patches[k].vNode.domtype === 'WOnce'){
+     //   //       delete patches[k]
+     //   //   } 
+     //   // }
+
+     //   console.log( patches[k] )
+     // })
+
+    //once 代码
+    // var WOnceWidget = function (){};
+    // WOnceWidget.prototype.type = "Widget";
+    // WOnceWidget.prototype.domtype = 'WOnce'
+  
+    // WOnceWidget.prototype.init = function(){
+    //   let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
+    //   return node;
+    // }
+  
+    // return new WOnceWidget();
