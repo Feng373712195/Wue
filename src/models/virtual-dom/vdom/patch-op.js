@@ -5,6 +5,7 @@ var VPatch = require("../vnode/vpatch.js")
 module.exports = applyPatch
 
 function applyPatch(vpatch, domNode, renderOptions) {
+    
     var type = vpatch.type
     var vNode = vpatch.vNode
     var patch = vpatch.patch
@@ -30,8 +31,10 @@ function applyPatch(vpatch, domNode, renderOptions) {
 }
 
 function removeNode(domNode, vNode) {
-    var parentNode = domNode.parentNode
 
+    console.log('removeNode');
+
+    var parentNode = domNode.parentNode
     if (parentNode) {
         parentNode.removeChild(domNode)
     }
@@ -40,6 +43,9 @@ function removeNode(domNode, vNode) {
 }
 
 function insertNode(parentNode, vNode, renderOptions) {
+
+    console.log('insertNode');
+
     var newNode = renderOptions.render(vNode, renderOptions)
 
     if (parentNode) {
@@ -50,12 +56,17 @@ function insertNode(parentNode, vNode, renderOptions) {
 }
 
 function stringPatch(domNode, leftVNode, vText, renderOptions) {
+    console.log('stringPatch');
+
     var newNode
 
     if (domNode.nodeType === 3) {
         domNode.replaceData(0, domNode.length, vText.text)
         newNode = domNode
     } else {
+
+        console.log(2)
+
         var parentNode = domNode.parentNode
         newNode = renderOptions.render(vText, renderOptions)
 
@@ -64,11 +75,16 @@ function stringPatch(domNode, leftVNode, vText, renderOptions) {
         }
     }
 
+    leftVNode.destroy && leftVNode.destroy.bind(null,domNode)();
+
     return newNode
 }
 
 
 function vNodePatch(domNode, leftVNode, vNode, renderOptions) {
+    
+    console.log('vNodePatch');
+
     var parentNode = domNode.parentNode
     var newNode = renderOptions.render(vNode, renderOptions)
 
@@ -80,6 +96,9 @@ function vNodePatch(domNode, leftVNode, vNode, renderOptions) {
 }
 
 function reorderChildren(domNode, moves) {
+    
+    console.log('reorderChildren');
+    
     var childNodes = domNode.childNodes
     var keyMap = {}
     var node
@@ -105,6 +124,9 @@ function reorderChildren(domNode, moves) {
 }
 
 function replaceRoot(oldRoot, newRoot) {
+
+    console.log('replaceRoot');
+
     if (oldRoot && newRoot && oldRoot !== newRoot && oldRoot.parentNode) {
         oldRoot.parentNode.replaceChild(newRoot, oldRoot)
     }

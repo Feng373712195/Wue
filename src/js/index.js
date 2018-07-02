@@ -1,4 +1,4 @@
-const { diff,patch,h,create,VNode,VText } = require('../models/virtual-dom');
+import {  diff,patch,h,create,VNode,VText } from '../models/virtual-dom';
 
 /** 常用方法 */
 const {  isUdf,
@@ -26,12 +26,19 @@ const warn = require('./warn').default;
 
     var that = this;
 
+    //内部 第一次挂载的方法
+    this.__firstMount = []; 
+    const __getEl = (el) => isDom(option.el) ? option.el : isString(option.el) ? dom.querySelector( option.el ) : (console.error('option el error type'));
+
     /** 需要检测methods是否都是function类型 */
     console.log( option.methods )
 
     const dom = document;
-    this.el = isDom(option.el) ? option.el : isString(option.el) ? dom.querySelector( option.el ) : (console.error('option el error type'));
+    this.el = __getEl(option.el);
     
+    //生命周期 create 创建了Wue实例
+    option.create && isFunction(option.create) && option.create.apply(this.el);
+
     /** 初始化渲染 */
     this.init_render = false;
     
@@ -43,6 +50,9 @@ const warn = require('./warn').default;
     this.data = createObserver(Object.create(null),option.data,that);
     //技术不行 -。- 有什么好办法可以记住模板的模型
     this.noRenderVNode = new renderVNode( this.el ).render( {},that );
+
+    /** 存储的vModel对应的doc */
+    this.wmodels = {}
 
     /** 初始化时执行 */
     isFunction( option.beforeCreate ) && option.beforeCreate.apply(this);
@@ -66,10 +76,28 @@ const warn = require('./warn').default;
 
     var patches = diff( that.noRenderVNode,that.vnode );
 
-    // console.log( patches );
-    // console.log( Wue.components );
+    var createDom = create(this.vnode);
 
-    patch( that.el , patches );
+    //生命周期 beforeMount 挂载之前
+    option.beforeMount && isFunction(option.beforeMount) && option.beforeMount.apply(createDom);
+
+    /** 旧的首次渲染操作 */
+    // patch( that.el , patches );
+    this.el.parentNode.replaceChild(createDom,this.el);
+
+    /** 重新定义挂载节点 */
+    this.el = __getEl(option.el);
+
+    //生命周期 mounted 已经挂载到dom上
+    option.mounted && isFunction(option.mounted) && option.mounted.apply(this.el);
+
+    this.__firstMount.forEach( f => f.apply(this.el,[this.el]) )
+    
+    //使命结束 删除属性方法 以免被外部使用
+    this.__firstMount = null;
+    delete this.__firstMount;
+
+    // __WueFirstMount(this.el);
 
     //初始化加载完毕
     this.init_render = true;
@@ -107,7 +135,7 @@ const warn = require('./warn').default;
     let data = option.hasOwnProperty('data') ? option.data : {};
     if(isFunction(data)) data = data();
     if(isObject(data)) data = data; 
-    else warn('component-data-error-type')
+    else warn('component-data-error-type') 
     
     var temDom = document.createElement('div');
     temDom.innerHTML = option.template;
@@ -189,6 +217,12 @@ const warn = require('./warn').default;
         set(newValue){
           watch(x,data[x],newValue,wue);
           observer(x,newValue,wue.observerdata,wue);
+
+          /** 双向数据绑定 处理 */
+          wue.wmodels[x] && wue.wmodels[x].map(input =>{
+            if( input.value != newValue ) input.value = newValue
+          })
+
         },
         enumerable : true,
         configurable : true

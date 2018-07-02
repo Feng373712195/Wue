@@ -19,9 +19,13 @@ function createElement(vnode, opts) {
         return null
     }
 
+    var docNode;
+
     var node = (vnode.namespace === null) ?
-        doc.createElement(vnode.tagName) :
-        doc.createElementNS(vnode.namespace, vnode.tagName)
+        docNode = doc.createElement(vnode.tagName) :
+        docNode = doc.createElementNS(vnode.namespace, vnode.tagName);
+    
+    vnode.create && vnode.create.bind(null,docNode)()
 
     var props = vnode.properties
     applyProperties(node, props)

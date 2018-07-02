@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Index</title>
+	<style type="text/css">
+		.box{
+			background-color: red;
+		}
+		.box2{
+			color:#fff;
+		}
+		.box3{
+			border:10px solid yellow;
+		}
+	</style>
+</head>
+<body> 
+	
+	<!-- <button id='del'>add</button> 
+	
+	<div id="testbox" w-if="1 + 1 === 2" >1</div> -->
+
+	<div id='app' class="nonono">
+		<!-- <img src="" alt="" /> -->
+		<!-- @click="touchMe2"  --> 
+		<div w-if="isActive" @click="touchMe2" >{{ html1 }}</div>
+		<div key="1" :title="title" style="width: 100px; height: 10px; background: red;"></div>
+		<div w-if="1 + 1 == 2" >1</div>
+
+		<input type="checkbox" id="checkbox" w-model="checked">
+		<label for="checkbox">{{ checked }}</label>
+
+		<input w-model="text">
+		<label for="checkbox">{{ text }}</label>
+
+		<!-- <div w-for="item in arr" >GOOD</div> -->
+
+		<!-- <div w-once >{{ html1 }}</div> -->
+		<!-- <div>{{ box2 }}</div>  -->
+		<!-- <button-Counter :time="time" :data="time" ></button-Counter> -->
+	</div>
+ 
+	<script type="text/javascript" src="../js/index.js"></script>
+	<script type="text/javascript">
+		
+				
+		'use strict'
+		
+		//Event()
+		// setTimeout(()=>{
+		// 	var selfEvent =	new Event('self',{
+		// 		'bubbles':true,
+		// 		'cancelable':false,
+		// 		'composed':false
+		// 	})
+
+		// 	var custom = new CustomEvent('self',{
+		// 		"detail" : {  //可携带额外的数据
+		// 			age : 18
+		// 		},
+		// 		"bubbles" : true,
+		// 		"cancelable" : false,
+		// 	});
+
+		// 	var create = document.createEvent('Event');
+    	// 	create.initEvent('self', false, false);
+
+		// 	document.dispatchEvent(create);
+		// },2000)
+
+		// document.addEventListener('self',()=>{
+		// 	alert('触发self事件')
+		// })
+		
+
+		console.time();  
+		  
+		// Wue.component('button-counter',{ 
+		// 		props:['data'],
+		// 		//or
+		// 		// propsData: {
+		// 		// 	msg: 'hello'
+		// 		// },
+		// 		data: function () {
+		// 			return {
+		// 				count: 0
+		// 			}
+		// 		},
+		// 		template: `<div>
+		// 						<button class="m-button" w-on:click="count++" >You clicked me {{ count }} times.</button>
+		// 						<div>{{ count }}</div>
+		// 				   </div>`
+		// 	})
+		
+		var wue = new Wue({ 
+						el:'#app', 
+						data:{
+							checked:true,
+							isActive:true,
+							box2:'box2',
+							box3:'box3',
+							boxStyle1:{
+								fontSize:'50px',
+								color:'red',
+								wocaoniHmamam:'www'
+							},
+							boxStyle2:{
+								color:'red'
+							},
+							title:'HELLO WUE',
+							html1:'<span>HELLO HTML1</span>',
+							html2:'<span>HELLO HTML2</span>',
+							text:'测试测试',
+							show:false,
+							userInfo:{
+								show:false,
+								name:'wuzefeng',
+								address:'dongsha',
+								phone:'1308579857',
+								arr:[1,2,3]
+							},
+							time:0,
+							arr:[{x:1,y:2,z:3},{x:1,y:2,z:3},{x:1,y:2,z:3}]
+						},
+						watch:{
+							'time':function(){
+								console.log('update time');
+							} 
+						},
+						methods:{
+							touchMe1:function(){
+								console.log(this.data.userInfo.name);
+							},
+							touchMe2:function(){
+								console.log('222');
+							},
+							touchMe3:function(a,b,c){
+								console.log(a);
+								console.log(b);
+								console.log(c);
+							}
+						},
+						/*生命周期部分*/
+						// beforeCreate:function(){
+						// 	alert('hello wue');
+						// },
+						created:function(doc){
+						},
+						beforeMount:function(){
+						},
+						mounted:function(){
+						},
+						beforeUpdate:function(){
+
+						},
+						updated:function(){
+							/* 组件的 updated 是否要冒泡到 父组件的 update */
+						},
+						// activated:function(){
+
+						// },
+						// deactivated:function(){
+
+						// },
+						// beforeDestroy:function(){
+
+						// },
+						// destroyed:function(){
+
+						// },
+						// errorCaptured:function(){
+
+						// },
+						// components:['button-counter']
+				  })
+ 
+		// setTimeout(()=>{
+		// 	Wue.set(wue.data,{ test:{ inline:'well' } },wue);
+		// 	// wue.data.test = '测试两下'
+		// 	console.log( wue.data.test );
+		// 	console.log( wue.observerdata.test );
+
+		// 	wue.data.test.inline = 'wall';
+		// },2000);
+
+		// wue.set({ test:'111' })
+
+		// setTimeout(() => {
+		// 	console.log('change')
+		// 	wue.data.test = '222';
+		// }, 2000);
+
+		// setTimeout(() => {
+		// 	wue.data.html1 = 'hello world'
+		//  }, 2000);
+
+		//  setInterval(() => {
+		// 	wue.data.isActive = !wue.data.isActive;
+		//  }, 1000);
+		
+		console.timeEnd();
+
+		
+		// wue.data.userInfo.arr.push(11)
+ 
+		// wue.data.userInfo.name = 'sofi' 
+		// 
+		// wue.data.userInfo['address'] = 'jingsha'
+		
+		// setInterval(()=>{
+		// 	// wue.data.userInfo.show = !wue.data.userInfo.show;
+		// 	// wue.data.show = !wue.data.show;
+		// 	console.log('111');
+		// 	wue.data.userInfo.arr.push('111');
+		// 	console.log(wue.data.userInfo.arr);
+		// },1000) 
+
+		// setTimeout(()=>{
+		// 	wue.data.text = '12345'
+		// },3000)
+
+		// console.log( new Function('var t = 0++; return t;')() );
+	</script>
+</body>
+</html>

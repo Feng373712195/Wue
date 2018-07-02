@@ -1,5 +1,7 @@
-const createElement  = require('virtual-dom/create-element'); 
-const { VNode,VText, } = require('virtual-dom');
+// const createElement  = require('virtual-dom/create-element'); 
+// const { VNode,VText, } = require('virtual-dom');
+
+import { isVText,isVNode,VNode,VText } from '../models/virtual-dom';
 
 /** 查找模板数据模块 */
 const findTmpText = require('./findTmpText').default;
@@ -40,18 +42,15 @@ let wIftodo = [];
 /* 调用w-if 次数 */
 let wIfcount = 0;
 
-/* 调用w-model 次数*/
-let wModelcount = 0;
-
-/* 存储wModel Node数组 */
-const vModelNodes = [];
-
-const wOnNodes = [];
-
 /* wModel 的方法 始终只引用这么一个 因为需要removeEventLister */
 var wModelHandle = function(data,modle,wue,e){
-    setTemplateValue(wue.data,modle,this.value);
-    this.value = getTemplateValue(wue.observerdata,modle,modle); 
+
+    if(e.target === this){
+        setTemplateValue(wue.data,modle,this.value);
+    }
+
+    /** 2018.7.2 交给 observer 去处理 */
+    // this.value = getTemplateValue(wue.observerdata,modle,modle); 
 }
 
 //委托事件
@@ -338,10 +337,6 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
   const forRenderHandler = (wue,node,fordata,data) =>{
 
    const blendData = Object.assign(data,fordata);
-
-   console.log('im blendData')
-   console.log(blendData)
-
    const nestForHandler = [];
    node.children.map((childnode,index)=>{
         if( isVtext(childnode) && childnode.text.trim() ){
@@ -398,7 +393,7 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
 
 }
 
-/** 以下会把 vnode 转成 wight 的指令 */
+/** 以下会把 vnode 转成 wight 的指令 2018-7-2 已找到解决方案 */
 
 /* wue 绑定事件指令 */
 wueInDirective['w-on'] = (vnode,propkey,data,wue) => {
@@ -411,32 +406,22 @@ wueInDirective['w-on'] = (vnode,propkey,data,wue) => {
     const props = vnode.properties;
     const EventType = propkey.replace(/^\@|^w-on:/,'');
     const EventHandle = props.attributes[propkey]
-    // console.log( parseWOn( EventHandle,wue.data ) );    
-    //diff 后会重新绑定事件问题 
-    //@event 写入属性报错问题
 
-    /** oldCode */
-    // var WOnWidget = function (){};
-    // WOnWidget.prototype.type = "Widget";
+    let bindEl = wue.__isComponent?wue.prante.el:wue.el;
 
-    // //组件的wue.el 就是一个dom节点 并没有挂载在docment上
-    // //所以组件在wue.el绑定事件 只是一个dom上绑定事件 在html点击对应dom是没有反应的
-    // WOnWidget.prototype.init = function(){
-    //     let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
-    //     // EntrustHandle (node,eventtype,methodName,wue,e)
-    //     let bindEl = wue.__isComponent?wue.prante.el:wue.el;
-    //     bindEl.addEventListener(EventType,EntrustHandle.bind(bindEl,node,parseWOn( EventHandle,wue.data,wue ),wue));
-    //     return node;
-    // }
-    // WOnWidget.prototype.update = function(){
-    //     console.log('update');  
-    // } 
-    // WOnWidget.prototype.destroy = function(node){
-    //     //组件销毁应该清除事件
-    //     console.log('destroy');
-    // }
-    // return new WOnWidget();
+    vnode.create = function(doc){
+        const EntrustOfElHandle = EntrustHandle.bind(bindEl,doc,parseWOn( EventHandle,wue.data,wue ),wue);
+        if( !wue.init_render ){
+            wue.__firstMount.push( bindEl => bindEl.addEventListener(EventType,EntrustOfElHandle) )
+        }else{
+            bindEl.addEventListener(EventType,EntrustOfElHandle)
+        }
+    };
 
+    vnode.destroy = function(doc){
+        bindEl.removeEventListener(EventType,EntrustHandle);
+    };
+    
     return vnode
 }
 
@@ -447,35 +432,66 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
     if(isEmptyObject(data)){
         return vnode;
     }
-    
+
     const modle = vnode.properties.attributes[propkey];
-    if(vnode.tagName === 'INPUT'){  
-        
-        const modle = vnode.properties.attributes[propkey];
-
-        var WModleWidget = function (){};
-        WModleWidget.prototype.type = "Widget";
-        WModleWidget.prototype.domtype = 'WModel'
-        WModleWidget.prototype.init = function(){
-            let input = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
-            input.value = getTemplateValue(wue.observerdata,modle,modle);
-            input.addEventListener('input',wModelHandle.bind(input,data,modle,wue))
-            return input;
-        }
-        WModleWidget.prototype.update = function(){
-            console.log('update');  
-        } 
-        WModleWidget.prototype.destroy = function(input){
-            //组件销毁应该清除事件
-            console.log('destroy');
-            input.removeEventListener('input', wModelHandle)
-        }
-        return new WModleWidget();
-
-    }else{
-
-        return vnode;
+    const { tagName,properties:{ type }  } = vnode;
+    const bindEl = wue.__isComponent?wue.prante.el:wue.el;
+    
+    const isTextInput = (tagName,type)=>{
+        if( tagName === 'INPUT' &&  (!type || type === '')  ) return true;
+        if( tagName === 'INPUT' && type === 'text' ) return true;
     }
+
+    if( isTextInput(tagName,type) || tagName === 'TEXTAREA'){  
+
+        vnode.create = function(doc){
+            
+            !wue.wmodels.hasOwnProperty(modle) && (wue.wmodels[modle] = [])
+            wue.wmodels[modle].indexOf(doc) === -1 && wue.wmodels[modle].push( doc );
+
+            const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue);
+            let tmp = getTemplateValue(wue.observerdata,modle,modle);
+            
+            // if(!!tmp)
+            
+            if( !wue.init_render ){
+                wue.__firstMount.push( bindEl => bindEl.addEventListener('input',inputWModelHandle,false) )
+            }else{
+                bindEl.addEventListener('input',inputWModelHandle,false)
+            }
+        };
+    
+        vnode.destroy = function(doc){
+            /** 从 wue.wmodels 移除 */
+            wue.wmodels[modle].splice( wue.wmodels[modle].indexOf(doc) ,1);
+            bindEl.removeEventListener('input',inputWModelHandle);
+        };
+
+    }
+
+    if( tagName === 'INPUT' && type === 'checkbox' ){
+        
+        vnode.create = function(doc){            
+            !wue.wmodels.hasOwnProperty(modle) && (wue.wmodels[modle] = [])
+            wue.wmodels[modle].indexOf(doc) === -1 && wue.wmodels[modle].push( doc );
+
+            const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue);
+            doc.value = getTemplateValue(wue.observerdata,modle,modle);
+            if( !wue.init_render ){
+                wue.__firstMount.push( bindEl => bindEl.addEventListener('checked',inputWModelHandle,false) )
+            }else{
+                bindEl.addEventListener('checked',inputWModelHandle,false)
+            }
+        }
+
+        vnode.destroy = function(doc){
+             /** 从 wue.wmodels 移除 */
+             wue.wmodels[modle].splice( wue.wmodels[modle].indexOf(doc) ,1);
+            bindEl.removeEventListener('checked',inputWModelHandle);
+        }
+    }   
+
+    return vnode;
 
 } 
 
@@ -495,7 +511,6 @@ wueInDirective['w-once'] = (vnode,propkey,data,wue) => {
     return vnode
   
 }
-  
 
 const handleWueInDirective = (wue,data,vnode)=>{
 
@@ -519,7 +534,10 @@ const handleWueInDirective = (wue,data,vnode)=>{
     })
 
     priorityDirective.concat(laterDirctive).forEach(prop =>{
-        wueInDirective[prop.directive] && (vnode = wueInDirective[prop.directive](vnode,prop.propkey,data,wue) );
+        /**  (prop.directive === 'w-on' && isVText(vnode)) 避免 vText 执行 v-on指令 因为w-if = false 会把vnode 转成  一个空字符的vtext */
+        if( !(prop.directive === 'w-on' && isVText(vnode)) ){
+            wueInDirective[prop.directive] && (vnode = wueInDirective[prop.directive](vnode,prop.propkey,data,wue) );
+        }
     })
 
     return vnode;

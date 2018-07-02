@@ -6,21 +6,21 @@
 *   BUF(5):单标签的属性劫取 已经修复 
 *   BUG(6):每次diff都会更新w-model元素 
 *   BUG(7):如果一个元素有绑定了多个wue多个内置指令 似乎只会就近绑定第一个 
-*   BUG(8): props a["b"] a[\"b\"] 报错 暂时不支持 a["b"] a[\"b\"] 待修复
-*   BUG(9): cry cry cry 属性截取表达式 如 <div w-if=" 1 + 1 == 2" >1</div>
-*           outerHTML 会获取成 <div w-if=" + 1 == 2" >1</div>
-*           outerHTML 问题真是贼多 
+*   BUG(8): props a["b"] a[\"b\"] 报错 暂时不支持 a["b"] a[\"b\"] 待修复  2018-6-27 html没有转义 
+*   BUG(9): cry cry cry 属性截取表达式 如 <div w-if=" 1 + 1 == 2" >1</div> 修复 2018-6-27 17：56 正则表达式replce错误 
 *   BUG(10): 指令中写表达式 如： a.b 如找不到 a 或者 b 属性会报错误
 *                                如果单写 a wue不会报错。 
 *
 *            修复于 2018-5-7 14：15
 *
-*   BUG(11) w-for 不支持 in number 
+*   BUG(11) w-for 不支持 in number 2018.6.27 解决
 *   BUG(12) w-for 中的 wue指令不会执行
 *   BUG(13) 处理标签无值属性 修复于 2018-5-22
 *   BUG(14) method 传入 data++ 报语法错误 number类型不能使用递增或者递减符号
 *   BUG(15) 组件应该有个区分的属性 然后要有一个parent. 这样才可以w-on
 *   BUG(16) 当找不到 还未设置的model 不应该整个视图都不渲染
+
+*   BUG(17) 多个 表达w-model同个模型 输入时应该同时改变
 */
 
 /*
@@ -85,7 +85,8 @@
   TODO:(15): str.split('').reverse().join('') 内置成员函数调用 未解析 会报错 以前已实现 因为解析时遇到undefind报错
   TODO:(16): 内置组件<component> 可以配合 bind:is 进行渲染组件与动态组件
   TODO(17): wue.set Wue.set 如果直接Wue.data.set数据不会响应式 需要调用Wue.set添加才行
-  */
+  TODO(18): false undefind '' 不显示  
+*/
 
  /**
   *  Summary(1) virtual-dom  property中的hook传过来的node 应该是渲染之前的node

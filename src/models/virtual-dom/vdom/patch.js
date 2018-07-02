@@ -18,7 +18,7 @@ function patch(rootNode, patches, renderOptions) {
 
 function patchRecursive(rootNode, patches, renderOptions) {
     var indices = patchIndices(patches)
-
+    
     if (indices.length === 0) {
         return rootNode
     }

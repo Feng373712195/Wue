@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "acorn": "^5.7.1",
+    "escodegen": "^1.10.0",
     "global": "^4.3.2",
     "is-object": "^1.0.1",
     "virtual-dom": "^2.1.1",

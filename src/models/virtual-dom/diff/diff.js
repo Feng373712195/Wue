@@ -9,13 +9,14 @@ var diffProps = require("./diff-props")
 module.exports = diff
 
 function diff(a, b) {
+    
     var patch = { a: a }
     walk(a, b, patch, 0)
     return patch
 }
 
 function walk(a, b, patch, index) {
-
+    
     if (a === b) {
         return
     }
@@ -24,8 +25,8 @@ function walk(a, b, patch, index) {
     if( b && b.nodiff ){
         return;
     }
-
-    var apply = patch[index]
+    
+    var apply = patch[index];
     var applyClear = false
 
    if (isVNode(b)) {
@@ -33,7 +34,7 @@ function walk(a, b, patch, index) {
             if (a.tagName === b.tagName &&
                 a.namespace === b.namespace &&
                 a.key === b.key) {
-                var propsPatch = diffProps(a.properties, b.properties)
+                var propsPatch = diffProps(a.properties, b.properties);
                 if (propsPatch) {
                     apply = appendPatch(apply,
                         new VPatch(VPatch.PROPS, a, propsPatch))
@@ -60,8 +61,10 @@ function walk(a, b, patch, index) {
 }
 
 function diffChildren(a, b, patch, apply, index) {
+    
     var aChildren = a.children
     var orderedSet = reorder(aChildren, b.children)
+
     var bChildren = orderedSet.children
 
     var aLen = aChildren.length
@@ -109,6 +112,7 @@ function reorder(aChildren, bChildren) {
     var bFree = bChildIndex.free
 
     if (bFree.length === bChildren.length) {
+
         return {
             children: bChildren,
             moves: null
@@ -121,6 +125,7 @@ function reorder(aChildren, bChildren) {
     var aFree = aChildIndex.free
 
     if (aFree.length === aChildren.length) {
+
         return {
             children: bChildren,
             moves: null
@@ -145,7 +150,6 @@ function reorder(aChildren, bChildren) {
                 // Match up the old keys
                 itemIndex = bKeys[aItem.key]
                 newChildren.push(bChildren[itemIndex])
-
             } else {
                 // Remove old keyed items
                 itemIndex = i - deletedItems++
@@ -174,7 +178,6 @@ function reorder(aChildren, bChildren) {
     // O(M) time
     for (var j = 0; j < bChildren.length; j++) {
         var newItem = bChildren[j]
-        
         if (newItem.key) {
             if (!aKeys.hasOwnProperty(newItem.key)) {
                 // Add any new keyed items
@@ -199,11 +202,13 @@ function reorder(aChildren, bChildren) {
         simulateItem = simulate[simulateIndex]
 
         // remove items
+        // 遍历到simulate不为null的值 之前的null值都被移除 simulateIndex还是0
         while (simulateItem === null && simulate.length) {
             removes.push(remove(simulate, simulateIndex, null))
             simulateItem = simulate[simulateIndex]
         }
-
+        
+        //比如 key 都为空 或者 key一致
         if (!simulateItem || simulateItem.key !== wantedItem.key) {
             // if we need a key in this position...
             if (wantedItem.key) {
@@ -226,6 +231,7 @@ function reorder(aChildren, bChildren) {
                     }
                 }
                 else {
+                    // wantedItem.key 存在 simulateItem 不存在 push inserts
                     inserts.push({key: wantedItem.key, to: k})
                 }
                 k++
