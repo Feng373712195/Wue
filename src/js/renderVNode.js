@@ -56,7 +56,7 @@ renderVNode.prototype.render = function(data,wue,isprint){
   /*是否for节点*/
   props.attributes['w-for'] && (this.isForRender = true);
   
-  /** 是否组件对属性的处理 */
+  /** 是否组件对属性的处理 */ 
   
   if( wue.__isComponent && (!wue.isReplaceEl) ){
     /** isReplaceEl 组件的el要替换成挂载在docment节点上的节点 否则diff无反应 也可以进行组件的局部刷新 */

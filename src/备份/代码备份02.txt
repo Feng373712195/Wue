@@ -1,0 +1,116 @@
+
+    
+    // var innerHtml = option.template.replace(/\<.*\>(.*)\<.*\>/,'$1');
+    // var warpHtml = option.template.replace(innerHtml,'');
+    // var stratTag,endTag,props;
+
+    // console.log('innerHtml' + innerHtml);
+      
+    // /** 这里也许需要检查首尾标签 */
+    // var tagName = warpHtml.replace(/\<(.*)\>\<(.*)\s?\>/,(str,$1,$2,$3)=>{ 
+    //     var Tagslice = $1.split(' ');
+    //     stratTag = Tagslice.shift();
+    //     props = sliceProp( Tagslice.join(' '),false );
+    //     endTag = $2;
+    // })
+
+    // console.log( stratTag )
+    // console.log( endTag );
+
+    // var dom = document.createElement(stratTag);
+
+    // const domSetAttr = (dom,obj)=>{
+    //   for(let i = 0,keys = Object.keys(obj),len = keys.length;i<len;i++){
+    //     const key = keys[i];
+    //     if(key === 'attributes'){
+    //       domSetAttr(dom,obj['attributes']);
+    //       continue;
+    //     }
+    //     dom.setAttribute(key,obj[key])
+    //   }
+    // }
+
+    // domSetAttr(dom,props)
+    // dom.innerHTML = innerHtml;
+
+
+     /* 如果是w-modle元素不更新 以后这块判断会增加更多逻辑 */
+     // Object.keys(patches).forEach(k=>{
+     //   // if( patches[k].vNode && ('domtype' in patches[k].vNode) && patches[k].vNode.domtype){
+     //   //   if(patches[k].vNode.domtype === 'WModel' || patches[k].vNode.domtype === 'WOnce'){
+     //   //       delete patches[k]
+     //   //   } 
+     //   // }
+
+     //   console.log( patches[k] )
+     // })
+
+    //once 代码
+    // var WOnceWidget = function (){};
+    // WOnceWidget.prototype.type = "Widget";
+    // WOnceWidget.prototype.domtype = 'WOnce'
+  
+    // WOnceWidget.prototype.init = function(){
+    //   let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
+    //   return node;
+    // }
+  
+    // return new WOnceWidget();
+
+    //diff 后会重新绑定事件问题 
+    //@event 写入属性报错问题
+
+    /** oldCode */
+    // var WOnWidget = function (){};
+    // WOnWidget.prototype.type = "Widget";
+
+	
+    // w-on 旧代码
+    // //组件的wue.el 就是一个dom节点 并没有挂载在docment上
+    // //所以组件在wue.el绑定事件 只是一个dom上绑定事件 在html点击对应dom是没有反应的
+    // WOnWidget.prototype.init = function(){
+    //     let node = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
+    //     // EntrustHandle (node,eventtype,methodName,wue,e)
+    //     let bindEl = wue.__isComponent?wue.prante.el:wue.el;
+    //     bindEl.addEventListener(EventType,EntrustHandle.bind(bindEl,node,parseWOn( EventHandle,wue.data,wue ),wue));
+    //     return node;
+    // }
+    // WOnWidget.prototype.update = function(){
+    //     console.log('update');  
+    // } 
+    // WOnWidget.prototype.destroy = function(node){
+    //     //组件销毁应该清除事件
+    //     console.log('destroy');
+    // }
+    // return new WOnWidget();
+
+
+    // w-modle 旧代码
+    const modle = vnode.properties.attributes[propkey];
+    if(vnode.tagName === 'INPUT'){  
+        
+        const modle = vnode.properties.attributes[propkey];
+
+        var WModleWidget = function (){};
+        WModleWidget.prototype.type = "Widget";
+        WModleWidget.prototype.domtype = 'WModel'
+        WModleWidget.prototype.init = function(){
+            let input = createElement( new VNode(vnode.tagName,vnode.properties,vnode.children) );
+            input.value = getTemplateValue(wue.observerdata,modle,modle);
+            input.addEventListener('input',wModelHandle.bind(input,data,modle,wue))
+            return input;
+        }
+        WModleWidget.prototype.update = function(){
+            console.log('update');  
+        } 
+        WModleWidget.prototype.destroy = function(input){
+            //组件销毁应该清除事件
+            console.log('destroy');
+            input.removeEventListener('input', wModelHandle)
+        }
+        return new WModleWidget();
+
+    }else{
+
+        return vnode;
+    }

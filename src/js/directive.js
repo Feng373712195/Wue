@@ -23,7 +23,9 @@ const {  isUdf,
     isTrue,
     isFalse,
     serialize,
-    HyphenTrunHump } = require('./uilt');
+    HyphenTrunHump,
+    attr,
+    getInputType } = require('./uilt');
 
 /** Wue 解析模块 */
 const { getTemplateValue,
@@ -43,10 +45,18 @@ let wIftodo = [];
 let wIfcount = 0;
 
 /* wModel 的方法 始终只引用这么一个 因为需要removeEventLister */
-var wModelHandle = function(data,modle,wue,e){
+var wModelHandle = function(data,modle,wue,InputType,e){
 
     if(e.target === this){
-        setTemplateValue(wue.data,modle,this.value);
+        if( InputType === 'text' ){
+            setTemplateValue(wue.data,modle,this.value);
+        }
+        if( InputType === 'checkbox' ){
+
+            console.log('checkbox')
+            const isChecked = !!getTemplateValue(wue.observerdata,modle,modle);
+            isChecked ? attr(this,'checked',isChecked) : attr(this,'checked',null);
+        }
     }
 
     /** 2018.7.2 交给 observer 去处理 */
@@ -437,22 +447,29 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
     const { tagName,properties:{ type }  } = vnode;
     const bindEl = wue.__isComponent?wue.prante.el:wue.el;
     
-    const isTextInput = (tagName,type)=>{
-        if( tagName === 'INPUT' &&  (!type || type === '')  ) return true;
-        if( tagName === 'INPUT' && type === 'text' ) return true;
-    }
 
-    if( isTextInput(tagName,type) || tagName === 'TEXTAREA'){  
+    /** 获取表单类型 */
+    const  getInputType = (tagName,type)=>{
+        const isTextInput = (tagName,type)=>{
+            if( tagName === 'INPUT' &&  (!type || type === '')  ) return true;
+            if( tagName === 'INPUT' && type === 'text' ) return true;
+        }
+        const isCheckbox = (tagName,type)=>{
+            if(tagName === 'INPUT' && type === 'checkbox') return true;
+        }
+        if( isTextInput(tagName,type) ) return 'text';
+        if( isCheckbox(tagName,type) ) return 'checkbox';
+    }
+    
+    if( getInputType(tagName,type) === 'text' ){  
 
         vnode.create = function(doc){
             
-            !wue.wmodels.hasOwnProperty(modle) && (wue.wmodels[modle] = [])
+            !wue.wmodels.text.hasOwnProperty(modle) && (wue.wmodels.text[modle] = [])
             wue.wmodels[modle].indexOf(doc) === -1 && wue.wmodels[modle].push( doc );
 
-            const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue);
-            let tmp = getTemplateValue(wue.observerdata,modle,modle);
-            
-            // if(!!tmp)
+            const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'text');
+            doc.value = getTemplateValue(wue.observerdata,modle,modle);
             
             if( !wue.init_render ){
                 wue.__firstMount.push( bindEl => bindEl.addEventListener('input',inputWModelHandle,false) )
@@ -463,31 +480,33 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
     
         vnode.destroy = function(doc){
             /** 从 wue.wmodels 移除 */
-            wue.wmodels[modle].splice( wue.wmodels[modle].indexOf(doc) ,1);
+            wue.wmodels.text[modle].splice( wue.wmodels.text[modle].indexOf(doc) ,1);
             bindEl.removeEventListener('input',inputWModelHandle);
         };
 
     }
 
-    if( tagName === 'INPUT' && type === 'checkbox' ){
+    if( getInputType(tagName,type) === 'checkbox' ){
         
         vnode.create = function(doc){            
-            !wue.wmodels.hasOwnProperty(modle) && (wue.wmodels[modle] = [])
-            wue.wmodels[modle].indexOf(doc) === -1 && wue.wmodels[modle].push( doc );
+            !wue.wmodels.checkbox.hasOwnProperty(modle) && (wue.wmodels.checkbox[modle] = [])
+            wue.wmodels.checkbox[modle].indexOf(doc) === -1 && wue.wmodels.checkbox[modle].push( doc );
 
-            const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue);
-            doc.value = getTemplateValue(wue.observerdata,modle,modle);
+            const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'checkbox')
+            const isChecked = !!getTemplateValue(wue.observerdata,modle,modle);
+            isChecked ? attr(doc,'checked',isChecked) : attr(doc,'checked',null);
+
             if( !wue.init_render ){
-                wue.__firstMount.push( bindEl => bindEl.addEventListener('checked',inputWModelHandle,false) )
+                wue.__firstMount.push( bindEl => bindEl.addEventListener('change',inputWModelHandle,false) )
             }else{
-                bindEl.addEventListener('checked',inputWModelHandle,false)
+                bindEl.addEventListener('change',inputWModelHandle,false)
             }
         }
 
         vnode.destroy = function(doc){
              /** 从 wue.wmodels 移除 */
-             wue.wmodels[modle].splice( wue.wmodels[modle].indexOf(doc) ,1);
-            bindEl.removeEventListener('checked',inputWModelHandle);
+            wue.wmodels.checkbox[modle].splice( wue.wmodels.checkbox[modle].indexOf(doc) ,1);
+            bindEl.removeEventListener('change',inputWModelHandle);
         }
     }   
 

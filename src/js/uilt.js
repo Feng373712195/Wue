@@ -82,6 +82,15 @@ function HumpTrunHyphen(str){
 
 }
 
+function attr(node,name, value){
+  if( !isDom(node) ) console.error('node is not dom');
+  if( name && value ){
+    value !== null ? node.setAttribute(name,value):
+                     node.removeAttribute(name);
+  }else if(name) node.getAttribute(name);
+}
+
+
 module.exports  = {
     isUdf,
     isDom,
@@ -96,5 +105,6 @@ module.exports  = {
     isFalse,
     serialize,
     HyphenTrunHump,
-    HumpTrunHyphen
+    HumpTrunHyphen,
+    attr,
 }

@@ -52,7 +52,10 @@ const warn = require('./warn').default;
     this.noRenderVNode = new renderVNode( this.el ).render( {},that );
 
     /** 存储的vModel对应的doc */
-    this.wmodels = {}
+    this.wmodels = {
+      text:{},
+      checkbox:{},
+    }
 
     /** 初始化时执行 */
     isFunction( option.beforeCreate ) && option.beforeCreate.apply(this);

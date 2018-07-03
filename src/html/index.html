@@ -20,6 +20,7 @@
 	<!-- <button id='del'>add</button> 
 	
 	<div id="testbox" w-if="1 + 1 === 2" >1</div> -->
+	<input type="checkbox" id="testCheck" />
 
 	<div id='app' class="nonono">
 		<!-- <img src="" alt="" /> -->
@@ -28,11 +29,11 @@
 		<div key="1" :title="title" style="width: 100px; height: 10px; background: red;"></div>
 		<div w-if="1 + 1 == 2" >1</div>
 
-		<input type="checkbox" id="checkbox" w-model="checked">
+		<input type="checkbox" id="checkbox" w-model="checked" >
 		<label for="checkbox">{{ checked }}</label>
 
-		<input w-model="text">
-		<label for="checkbox">{{ text }}</label>
+		<!-- <input w-model="text">
+		<label for="checkbox">{{ text }}</label> -->
 
 		<!-- <div w-for="item in arr" >GOOD</div> -->
 
@@ -221,6 +222,7 @@
 		// },3000)
 
 		// console.log( new Function('var t = 0++; return t;')() );
+	
 	</script>
 </body>
 </html>
