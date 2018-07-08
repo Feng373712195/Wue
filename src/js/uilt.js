@@ -30,6 +30,10 @@ function isFunction(fun){
   return typeof fun === 'function' && _toString.call(fun) === '[object Function]';
 }
 
+function isBoolean(bool){
+  return typeof bool === 'boolean' && _toString.call(bool) === '[object Boolean]';
+}
+
 function isEmptyObject(obj){
   for(x in obj) return false;
   return true;
@@ -43,6 +47,14 @@ function isArray(obj){
    return ( [].isArray && [].isArray(obj) ) || _toString.call(obj) === '[object Array]'
 }
 
+function isTrue(boolean){
+  return (boolean === "true" || !!boolean === true) ? true : false
+}
+
+function isFalse(boolean){
+  return (boolean === "false" || !!boolean === false) ? true : false
+}
+
 function serialize(obj,fomat,option){
 
   const toHump = option.toHump || false;
@@ -54,14 +66,6 @@ function serialize(obj,fomat,option){
   })
 
   return str;
-}
-
-function isTrue(boolean){
-  return (boolean === "true" || !!boolean === true) ? true : false
-}
-
-function isFalse(boolean){
-  return (boolean === "false" || !!boolean === false) ? true : false
 }
 
 function HyphenTrunHump(str){
@@ -82,9 +86,9 @@ function HumpTrunHyphen(str){
 
 }
 
-function attr(node,name, value){
+function attr(node,name,value){
   if( !isDom(node) ) console.error('node is not dom');
-  if( name && value ){
+  if( name && value !== undefined ){
     value !== null ? node.setAttribute(name,value):
                      node.removeAttribute(name);
   }else if(name) node.getAttribute(name);
@@ -98,6 +102,7 @@ module.exports  = {
     isString,
     isObject,
     isFunction,
+    isBoolean,
     isEmptyObject,
     isPlainObject,
     isArray,

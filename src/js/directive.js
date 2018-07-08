@@ -17,6 +17,7 @@ const {  isUdf,
     isObject,
     isNumber,
     isString,
+    isBoolean,
     isEmptyObject,
     isPlainObject,
     isArray,
@@ -52,10 +53,16 @@ var wModelHandle = function(data,modle,wue,InputType,e){
             setTemplateValue(wue.data,modle,this.value);
         }
         if( InputType === 'checkbox' ){
-
-            console.log('checkbox')
-            const isChecked = !!getTemplateValue(wue.observerdata,modle,modle);
-            isChecked ? attr(this,'checked',isChecked) : attr(this,'checked',null);
+            let modleVal = parseAst(modle,wue.observerdata);
+            if( isBoolean( modleVal ) ){
+                const isChecked = !Boolean( modleVal );
+                setTemplateValue(wue.data,modle,isChecked);
+            }
+            if( isArray( modleVal ) ){
+                const checkValIndex = modleVal.indexOf( this.value );
+                checkValIndex !== -1 ? modleVal.splice(checkValIndex,1) : modleVal.push( this.value )
+                setTemplateValue(wue.data,modle,modleVal)
+            }
         }
     }
 
@@ -319,8 +326,6 @@ wueInDirective['w-for'] = (vnode,propkey,data,wue) =>{
   const condition = props.attributes[propkey];
   const ret = parseWforAst(condition,data);
 
-  console.log(ret)
-
   const vnodes = [];
   const nestForVnode = [];
 
@@ -437,8 +442,6 @@ wueInDirective['w-on'] = (vnode,propkey,data,wue) => {
 
 wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
 
-    console.log('w-model')
-
     if(isEmptyObject(data)){
         return vnode;
     }
@@ -466,7 +469,7 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
         vnode.create = function(doc){
             
             !wue.wmodels.text.hasOwnProperty(modle) && (wue.wmodels.text[modle] = [])
-            wue.wmodels[modle].indexOf(doc) === -1 && wue.wmodels[modle].push( doc );
+            wue.wmodels.text[modle].indexOf(doc) === -1 && wue.wmodels.text[modle].push( doc );
 
             const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'text');
             doc.value = getTemplateValue(wue.observerdata,modle,modle);
@@ -487,14 +490,28 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
     }
 
     if( getInputType(tagName,type) === 'checkbox' ){
-        
-        vnode.create = function(doc){            
+
+        vnode.create = function(doc){
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
             !wue.wmodels.checkbox.hasOwnProperty(modle) && (wue.wmodels.checkbox[modle] = [])
             wue.wmodels.checkbox[modle].indexOf(doc) === -1 && wue.wmodels.checkbox[modle].push( doc );
-
+            let wmodel = parseAst(modle,wue.observerdata)
             const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'checkbox')
-            const isChecked = !!getTemplateValue(wue.observerdata,modle,modle);
-            isChecked ? attr(doc,'checked',isChecked) : attr(doc,'checked',null);
+
+            console.log( wmodel )
+
+            if( isBoolean(wmodel) ){
+                const isChecked = Boolean( wmodel );
+                attr(doc,'checked',isChecked ? true:null );
+            }
+
+            if( isArray(wmodel) ){
+                const checkboxVal = vnode.properties.value
+                if( checkboxVal !== undefined ){
+                    const isChecked  = wmodel.indexOf( checkboxVal ) !== -1;
+                    attr(doc,'checked',isChecked ? true:null );
+                }
+            }
 
             if( !wue.init_render ){
                 wue.__firstMount.push( bindEl => bindEl.addEventListener('change',inputWModelHandle,false) )

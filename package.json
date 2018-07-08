@@ -17,5 +17,7 @@
     "virtual-dom": "^2.1.1",
     "x-is-array": "^0.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "parcel": "^1.9.4"
+  }
 }

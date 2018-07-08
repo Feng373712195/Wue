@@ -19,7 +19,6 @@ const {  isUdf,
 function getTemplateValue(data,key,tmp){
 
     const keys = key.split('.');
-    
     /* wue.data中找不到的属性 则应报错 不该返回false  */
   
     if( keys.length === 1 ){
@@ -28,7 +27,6 @@ function getTemplateValue(data,key,tmp){
       
       /*escodegen.generate 需要把Object进行toString操作 */
       if( isObject( data[key] ) ){
-
         Object.defineProperty(data[key],'toString',{
           get:function(v){
             return function(){
@@ -49,9 +47,7 @@ function getTemplateValue(data,key,tmp){
       data = data[keys[0]];
       keys.shift();
       return getTemplateValue( isObject(data[keys[0]]) ? data[keys[0]] : data , keys.join('') )
-    
     }
-  
 }
 
 function setTemplateValue(data,key,value){
@@ -59,10 +55,11 @@ function setTemplateValue(data,key,value){
     const keys = key.split('.');
   
     if( keys.length === 1 ){
-  
-      let setDataValue = new Function( 'd',`d.${key} = "${value}" ` );        
-      setDataValue(data);
-        
+      /** 2017.7.8 'd',`d.${key} = "${value}"` 去除了双引号 以保证能返回布尔值 */
+      // 这种如果是 Object 和 Array 类型返回 自定义的拦截属性就会没有
+      let setDataValue = new Function( 'wueData',`wueData.${key} = ${value};` );    
+      setDataValue( data );
+
     }else{
       data = data[keys[0]];
       keys.shift();
@@ -252,7 +249,7 @@ function parseAst(expression,data,isprint){
   // console.log(expression);
 
   /* 如果不用括号把表达式括起来 传入{ } 会把语法错误 */
-  const ast = acorn.parse( `( ${expression} )` );
+  const ast = acorn.parse( `( ${expression})` );
   try{
     findIdentifier(ast.body[0],data);
   }catch(e){
@@ -260,7 +257,7 @@ function parseAst(expression,data,isprint){
     //找不到模板 返回空字符串 不再继续往下执行
     return '';
   }
-
+  
   const parse = escodegen.generate(ast);
   const ret = new Function(`return ${parse}`)();
   return ret;

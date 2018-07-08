@@ -20,7 +20,7 @@
 	<!-- <button id='del'>add</button> 
 	
 	<div id="testbox" w-if="1 + 1 === 2" >1</div> -->
-	<input type="checkbox" id="testCheck" />
+	<input type="checkbox" id="testCheck" checked />
 
 	<div id='app' class="nonono">
 		<!-- <img src="" alt="" /> -->
@@ -29,8 +29,19 @@
 		<div key="1" :title="title" style="width: 100px; height: 10px; background: red;"></div>
 		<div w-if="1 + 1 == 2" >1</div>
 
-		<input type="checkbox" id="checkbox" w-model="checked" >
-		<label for="checkbox">{{ checked }}</label>
+		<!-- <input type="checkbox" id="checkbox" value="1" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="2" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="3" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="4" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="5" w-model="boxStyle2['checked']" >
+		<label for="checkbox">{{ boxStyle2['checked'] }}</label> -->
+
+		<input type="checkbox" id="checkbox" value="1" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="2" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="3" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="4" w-model="boxStyle2['checked']" >
+		<input type="checkbox" id="checkbox" value="5" w-model="boxStyle2['checked']" >
+		<label for="checkbox">{{ boxStyle2['checked'] }}</label>
 
 		<!-- <input w-model="text">
 		<label for="checkbox">{{ text }}</label> -->
@@ -107,7 +118,8 @@
 								wocaoniHmamam:'www'
 							},
 							boxStyle2:{
-								color:'red'
+								color:'red',
+								checked:true
 							},
 							title:'HELLO WUE',
 							html1:'<span>HELLO HTML1</span>',
@@ -122,7 +134,8 @@
 								arr:[1,2,3]
 							},
 							time:0,
-							arr:[{x:1,y:2,z:3},{x:1,y:2,z:3},{x:1,y:2,z:3}]
+							arr:[{x:1,y:2,z:3},{x:1,y:2,z:3},{x:1,y:2,z:3}],
+							obj1:{x:1,y:2,z:3}
 						},
 						watch:{
 							'time':function(){
@@ -175,7 +188,11 @@
 						// },
 						// components:['button-counter']
 				  })
- 
+		
+		setTimeout(()=>{
+			wue.data.boxStyle2['checked'] = false;
+			console.log('change')
+		},1000);
 		// setTimeout(()=>{
 		// 	Wue.set(wue.data,{ test:{ inline:'well' } },wue);
 		// 	// wue.data.test = '测试两下'

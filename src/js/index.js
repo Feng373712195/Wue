@@ -3,12 +3,14 @@ import {  diff,patch,h,create,VNode,VText } from '../models/virtual-dom';
 /** 常用方法 */
 const {  isUdf,
          isDom,
+         isBoolean,
          isObject,
          isString,
          isFunction,
          isEmptyObject,
          isPlainObject,
-         isArray } = require('./uilt');
+         isArray,
+         attr } = require('./uilt');
 
 /** 渲染VNode模块 */
 var { renderVNode } = require('./renderVNode');
@@ -218,12 +220,22 @@ const warn = require('./warn').default;
           return data[x];
         },
         set(newValue){
-          watch(x,data[x],newValue,wue);
-          observer(x,newValue,wue.observerdata,wue);
 
+          watch(x,data[x],newValue,wue);
+          // observer(x,newValue,wue.observerdata,wue);
+          observer(x,newValue,data,wue);
+
+          /** key 值为 a.b a['b']的处理 */
           /** 双向数据绑定 处理 */
-          wue.wmodels[x] && wue.wmodels[x].map(input =>{
+          wue.wmodels.text[x] && wue.wmodels.text[x].map(input =>{
             if( input.value != newValue ) input.value = newValue
+          })
+
+          wue.wmodels.checkbox[x] && wue.wmodels.checkbox[x].map(input =>{
+            console.log('here')
+            if( isBoolean(newValue) ){
+              attr(input,'checked',newValue ? true:null );
+            }
           })
 
         },
@@ -241,20 +253,24 @@ const warn = require('./warn').default;
 
   /** 数组代理 伪数组 */
   function createObserverArr(key,observerdata,arr,wue){
-
+    
     const arrhandles = [
       'push',
       'pop',
       'shift',
       'splice',
-      'unshift'
-    ] 
+      'unshift',
+      'toString'
+    ]
 
     let proxpArr = [];
 
     arrhandles.forEach(v=>{
       Object.defineProperty(arr,v,{
         get:function(){
+          if( v === 'toString' ){ 
+            return function(){ return JSON.stringify(this) }
+          }
           return (...arg)=>{
                   const ret = proxpArr[v].apply(arr,arg);
                   watch(key,[],arr,wue);
