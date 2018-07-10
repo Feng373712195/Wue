@@ -230,9 +230,7 @@ const warn = require('./warn').default;
           wue.wmodels.text[x] && wue.wmodels.text[x].map(input =>{
             if( input.value != newValue ) input.value = newValue
           })
-
           wue.wmodels.checkbox[x] && wue.wmodels.checkbox[x].map(input =>{
-            console.log('here')
             if( isBoolean(newValue) ){
               attr(input,'checked',newValue ? true:null );
             }

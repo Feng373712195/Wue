@@ -29,19 +29,19 @@
 		<div key="1" :title="title" style="width: 100px; height: 10px; background: red;"></div>
 		<div w-if="1 + 1 == 2" >1</div>
 
+		<input type="checkbox" id="checkbox" value="1" w-model="checked" >
+		<input type="checkbox" id="checkbox" value="2" w-model="checked" >
+		<input type="checkbox" id="checkbox" value="3" w-model="checked" >
+		<input type="checkbox" id="checkbox" value="4" w-model="checked" >
+		<input type="checkbox" id="checkbox" value="5" w-model="checked" >
+		<label for="checkbox">{{ checked }}</label>
+
 		<!-- <input type="checkbox" id="checkbox" value="1" w-model="boxStyle2['checked']" >
 		<input type="checkbox" id="checkbox" value="2" w-model="boxStyle2['checked']" >
 		<input type="checkbox" id="checkbox" value="3" w-model="boxStyle2['checked']" >
 		<input type="checkbox" id="checkbox" value="4" w-model="boxStyle2['checked']" >
 		<input type="checkbox" id="checkbox" value="5" w-model="boxStyle2['checked']" >
 		<label for="checkbox">{{ boxStyle2['checked'] }}</label> -->
-
-		<input type="checkbox" id="checkbox" value="1" w-model="boxStyle2['checked']" >
-		<input type="checkbox" id="checkbox" value="2" w-model="boxStyle2['checked']" >
-		<input type="checkbox" id="checkbox" value="3" w-model="boxStyle2['checked']" >
-		<input type="checkbox" id="checkbox" value="4" w-model="boxStyle2['checked']" >
-		<input type="checkbox" id="checkbox" value="5" w-model="boxStyle2['checked']" >
-		<label for="checkbox">{{ boxStyle2['checked'] }}</label>
 
 		<!-- <input w-model="text">
 		<label for="checkbox">{{ text }}</label> -->
@@ -239,6 +239,7 @@
 		// },3000)
 
 		// console.log( new Function('var t = 0++; return t;')() );
+
 	
 	</script>
 </body>
