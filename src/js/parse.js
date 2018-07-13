@@ -17,55 +17,15 @@ const {  isUdf,
  */
 
 function getTemplateValue(data,key,tmp){
-
-    const keys = key.split('.');
-    /* wue.data中找不到的属性 则应报错 不该返回false  */
-  
-    if( keys.length === 1 ){
-
-      let getDataValue = new Function( 'd',`return d.${key}` );
-      
-      /*escodegen.generate 需要把Object进行toString操作 */
-      if( isObject( data[key] ) ){
-        Object.defineProperty(data[key],'toString',{
-          get:function(v){
-            return function(){
-                      return JSON.stringify(data[key])
-                   }
-          },
-          enumerable : false,
-          configurable : true
-        });
-      } 
-
-      /* 判断data是否为false值 */
-      return isUdf( data[key] ) ? tmp : data[key];
-      /*如果为false值 返回第三个参数 */
-
-    }else{
-      
-      data = data[keys[0]];
-      keys.shift();
-      return getTemplateValue( isObject(data[keys[0]]) ? data[keys[0]] : data , keys.join('') )
-    }
+    // console.log('getTemplateValue')
+    const { parent,lastKey } = findParentData(key,data)    
+    return parent[lastKey];
 }
 
 function setTemplateValue(data,key,value){
-
-    const keys = key.split('.');
-  
-    if( keys.length === 1 ){
-      /** 2017.7.8 'd',`d.${key} = "${value}"` 去除了双引号 以保证能返回布尔值 */
-      // 这种如果是 Object 和 Array 类型返回 自定义的拦截属性就会没有
-      let setDataValue = new Function( 'wueData',`wueData.${key} = ${value};` );    
-      setDataValue( data );
-
-    }else{
-      data = data[keys[0]];
-      keys.shift();
-      setTemplateValue( isObject(data[keys[0]]) ? data[keys[0]] : data , keys.join('') )
-    }
-  
+    // console.log('setTemplateValue')
+    const { parent,lastKey } = findParentData(key,data)
+    parent[lastKey] = value;
 }
 
 /** 
@@ -94,7 +54,7 @@ function findIdentifier(node,data){
     ( (isObject(node) && Object.keys(node)) || (isArray(node) && node) || [node] ).forEach( k =>{
 
           if(isNode(node[k])){
-
+              
               if( node[k].hasOwnProperty('type') && node[k].type === 'Identifier' ){
 
                   // console.log('Identifier');
@@ -241,6 +201,44 @@ function findIdentifier(node,data){
     
     });
 
+
+}
+
+/** 为了解决 data['key'].key 这种复杂的写法 找到所在的对象进行赋值 
+ *  And 解决 data[ data[key].key ].key 嵌套写法
+*/
+function findParentData(key,data){
+
+  // console.log( 'findParentData' )
+  // console.log( data )
+
+  const ast = acorn.parse(`data.${key}`)  
+  const expression = ast.body[0].expression
+
+  if( !(expression && expression.type === 'MemberExpression') ){
+    console.error('key no memberExpression')
+  }
+
+  const lastKey = expression.property.value || expression.property.name;
+  const dataRoot = { parent:data,def:1 };
+  const dataLink = [];
+  let loopCurrtObj = expression;
+  let currtParent = dataRoot;
+
+  while( loopCurrtObj.type === "MemberExpression" && loopCurrtObj.hasOwnProperty('object') ){
+    loopCurrtObj = loopCurrtObj.object
+    if(loopCurrtObj.type === "MemberExpression")
+       dataLink.push({  
+                        computed:loopCurrtObj.computed,
+                        name: loopCurrtObj.property.value || loopCurrtObj.property.name 
+                    })
+  }
+
+  dataLink.reverse().forEach( link =>{
+     currtParent = currtParent.next = { parent:currtParent.parent[link.name],def:currtParent.def + 1 }
+  })
+
+  return  { parent:currtParent.parent,lastKey } 
 }
 
 function parseAst(expression,data,isprint){
@@ -402,6 +400,7 @@ function parseWOn(expression,data,wue){
 module.exports = {
   getTemplateValue,
   setTemplateValue,
+  findParentData,
   parseAst,
   parseWforAst,
   parseWOn

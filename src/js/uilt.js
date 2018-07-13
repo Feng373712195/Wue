@@ -94,6 +94,14 @@ function attr(node,name,value){
   }else if(name) node.getAttribute(name);
 }
 
+function prop(node,name,value){
+  if( !isDom(node) ) console.error('node is not dom');
+  if( name && value !== undefined ){
+    value !== null ? (node[name] = value):
+                     (node[name] = null);
+  }else if(name) node[name];
+}
+
 
 module.exports  = {
     isUdf,
@@ -112,4 +120,5 @@ module.exports  = {
     HyphenTrunHump,
     HumpTrunHyphen,
     attr,
+    prop
 }

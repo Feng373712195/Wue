@@ -23,18 +23,29 @@
 	<input type="checkbox" id="testCheck" checked />
 
 	<div id='app' class="nonono">
+
+			<div id="example-5">
+				<select multiple >
+					<option disabled value="">请选择</option>
+					<option>A</option>
+					<option>B</option>
+					<option>C</option>
+				</select>
+				<span>Selected: {{ selected }}</span>
+			</div>
+
 		<!-- <img src="" alt="" /> -->
 		<!-- @click="touchMe2"  --> 
-		<div w-if="isActive" @click="touchMe2" >{{ html1 }}</div>
+		<!-- <div w-if="isActive" @click="touchMe2" >{{ html1 }}</div>
 		<div key="1" :title="title" style="width: 100px; height: 10px; background: red;"></div>
-		<div w-if="1 + 1 == 2" >1</div>
-
+		<div w-if="1 + 1 == 2" >1</div> -->
+<!-- 
 		<input type="checkbox" id="checkbox" value="1" w-model="checked" >
 		<input type="checkbox" id="checkbox" value="2" w-model="checked" >
 		<input type="checkbox" id="checkbox" value="3" w-model="checked" >
 		<input type="checkbox" id="checkbox" value="4" w-model="checked" >
 		<input type="checkbox" id="checkbox" value="5" w-model="checked" >
-		<label for="checkbox">{{ checked }}</label>
+		<label for="checkbox">{{ checked }}</label> -->
 
 		<!-- <input type="checkbox" id="checkbox" value="1" w-model="boxStyle2['checked']" >
 		<input type="checkbox" id="checkbox" value="2" w-model="boxStyle2['checked']" >
@@ -58,6 +69,13 @@
 		
 				
 		'use strict'
+
+		// var checkbox = document.querySelectorAll('input[type="checkbox"]')
+		// console.log( 'html console' )
+		// console.log( checkbox[2]['checked'] )
+		// for( var x in checkbox[0]['checked'] ){
+		// 	console.log(x)
+		// }
 		
 		//Event()
 		// setTimeout(()=>{
@@ -108,14 +126,24 @@
 		var wue = new Wue({ 
 						el:'#app', 
 						data:{
-							checked:true,
+							selected:'B',
+							picked:'One',
+							checked:["1"],
 							isActive:true,
 							box2:'box2',
 							box3:'box3',
 							boxStyle1:{
-								fontSize:'50px',
-								color:'red',
-								wocaoniHmamam:'www'
+								checked1:{
+									boxStyle2:{
+										checked2:{
+											boxStyle3:{
+												checked3:{
+													here:true
+												}
+											}
+										}
+									}
+								}
 							},
 							boxStyle2:{
 								color:'red',
@@ -188,11 +216,11 @@
 						// },
 						// components:['button-counter']
 				  })
-		
-		setTimeout(()=>{
-			wue.data.boxStyle2['checked'] = false;
-			console.log('change')
-		},1000);
+			
+		// setTimeout(()=>{
+		// 	wue.data.boxStyle2['checked'] = false;
+		// 	console.log(wue.data.boxStyle2)
+		// },1000);
 		// setTimeout(()=>{
 		// 	Wue.set(wue.data,{ test:{ inline:'well' } },wue);
 		// 	// wue.data.test = '测试两下'
@@ -218,8 +246,6 @@
 		//  }, 1000);
 		
 		console.timeEnd();
-
-		
 		// wue.data.userInfo.arr.push(11)
  
 		// wue.data.userInfo.name = 'sofi' 
@@ -238,9 +264,7 @@
 		// 	wue.data.text = '12345'
 		// },3000)
 
-		// console.log( new Function('var t = 0++; return t;')() );
-
-	
+		// console.log( new Function('var t = 0++; return t;')() );	
 	</script>
 </body>
 </html>

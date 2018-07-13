@@ -1,4 +1,5 @@
-import {  diff,patch,h,create,VNode,VText } from '../models/virtual-dom';
+import {  diff,patch,create } from '../models/virtual-dom';
+import { Z_HUFFMAN_ONLY } from 'zlib';
 
 /** 常用方法 */
 const {  isUdf,
@@ -6,17 +7,15 @@ const {  isUdf,
          isBoolean,
          isObject,
          isString,
+         isNumber,
          isFunction,
-         isEmptyObject,
          isPlainObject,
          isArray,
-         attr } = require('./uilt');
+         prop } = require('./uilt');
 
 /** 渲染VNode模块 */
 var { renderVNode } = require('./renderVNode');
-
-const sliceProp = require('./sliceProp').default;
-
+/** 报错内容模块 */
 const warn = require('./warn').default;
 
 (function(){
@@ -49,14 +48,16 @@ const warn = require('./warn').default;
     this.observerdata = option.data;
     this.olddata = JSON.parse( JSON.stringify( this.observerdata ) );
     this.watch = option.watch ? option.watch : {};
-    this.data = createObserver(Object.create(null),option.data,that);
+    this.data = setOriginalObject( this.observerdata,createObserver(Object.create(null),option.data,that) );
     //技术不行 -。- 有什么好办法可以记住模板的模型
     this.noRenderVNode = new renderVNode( this.el ).render( {},that );
 
     /** 存储的vModel对应的doc */
     this.wmodels = {
-      text:{},
-      checkbox:{},
+      text:new Map(),
+      checkbox:new Map(),
+      radio:new Map(),
+      select:new Map()
     }
 
     /** 初始化时执行 */
@@ -207,7 +208,7 @@ const warn = require('./warn').default;
 
       /*是纯Object的继续递归*/
       if( isPlainObject(data[x]) ){
-        data[x] = createObserver(Object.create(null),data[x],wue)
+        data[x] = setOriginalObject( data[x],createObserver(Object.create(null),data[x],wue) )
       }
 
       //数组的拦截
@@ -221,21 +222,36 @@ const warn = require('./warn').default;
         },
         set(newValue){
 
-          watch(x,data[x],newValue,wue);
+          watch(x,newValue,data[x],wue);
           // observer(x,newValue,wue.observerdata,wue);
-          observer(x,newValue,data,wue);
+          observer(x,newValue,data,wue);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 
           /** key 值为 a.b a['b']的处理 */
           /** 双向数据绑定 处理 */
-          wue.wmodels.text[x] && wue.wmodels.text[x].map(input =>{
+          wue.wmodels.text.has(data) && wue.wmodels.text.get(data).get(x).forEach(input =>{
             if( input.value != newValue ) input.value = newValue
           })
-          wue.wmodels.checkbox[x] && wue.wmodels.checkbox[x].map(input =>{
+          wue.wmodels.checkbox.has(data) && wue.wmodels.checkbox.get(data).get(x).forEach(input =>{
             if( isBoolean(newValue) ){
-              attr(input,'checked',newValue ? true:null );
+              prop(input,'checked',newValue ? true:null );
+            }
+            if( isArray(newValue) ){
+              const hasArr = (arr,val) => arr.indexOf( val ) !== -1
+              const isChecked  =  isNumber(+newValue) ? ( hasArr(newValue,+input.value) || hasArr(newValue,input.value) ) : hasArr(newValue,input.value) ;
+              prop(input,'checked',isChecked ? true:null );
             }
           })
-
+          wue.wmodels.radio.has(data) && wue.wmodels.radio.get(data).get(x).forEach(input =>{
+            /** 这里不用全等判断 因为需要 1 == “1” */
+            const isChecked = input.value == newValue;
+            prop(input,'checked',isChecked ? true:null );
+          })
+          wue.wmodels.select.has(data) && wue.wmodels.select.get(data).get(x).forEach(select =>{
+            [...select.options].forEach(option=>{
+              const isSelected = option.text == newValue;
+              prop(option,'selected',isSelected ? true:null)
+            })
+          })
         },
         enumerable : true,
         configurable : true
@@ -246,7 +262,20 @@ const warn = require('./warn').default;
     }
 
     return observerData;
+  }
 
+
+  /** 设置源对象 */
+  function setOriginalObject(origin,data){
+    Object.defineProperty(data,'getOriginalObject',{
+      get:function(v){
+        return origin
+      },
+      enumerable : false,
+      configurable : false
+    });
+
+    return data;
   }
 
   /** 数组代理 伪数组 */
@@ -297,7 +326,8 @@ const warn = require('./warn').default;
       // console.log( observerdata )
       // console.log( wue.observerdata );
 
-      var currentVnode = new renderVNode( create( wue.noRenderVNode ) ).render( wue.olddata,wue,false );         
+      var currentVnode = new renderVNode( create( wue.noRenderVNode ) ).render( wue.olddata,wue,false );     
+      /* wue.observerdata 7.13 wue.wue.observerdata 改为 wue.data */    
       var updateVnode  =  new renderVNode( create( wue.noRenderVNode ) ).render( wue.observerdata,wue,true );
       
 

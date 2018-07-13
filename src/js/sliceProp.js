@@ -47,7 +47,7 @@ export default function (str){
             if( propkey.match(/^@/) ) propkey = propkey.replace(/^@/,'w-on:');
             propkey = propMap[propkey] ? propMap[propkey] : propkey
           }else{
-            if(/key|data-|w-|^:|^@|checked/.test(propkey)){
+            if(/key|data-|w-|^:|^@|checked|disabled|multiple/.test(propkey)){
               propsObj.attributes[propkey] = v;
             }else{
               propsObj[propkey] = v;
