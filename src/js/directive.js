@@ -25,6 +25,7 @@ const {  isUdf,
     isFalse,
     serialize,
     HyphenTrunHump,
+    attr,
     prop,
     getInputType } = require('./uilt');
 
@@ -70,8 +71,19 @@ var wModelHandle = function(data,modle,wue,InputType,e){
             setTemplateValue(wue.data,modle,this.value)
         }
         if( InputType === 'select' ){
-            const selectedIndex = this.options.selectedIndex;
-            setTemplateValue(wue.data,modle,this.options[selectedIndex].text)
+            const isMultiple = prop(this,'multiple');
+            let modleVal = getTemplateValue(wue.data,modle,modle);
+            if( isMultiple ){
+                const selecteds = [];
+                [...this.options].forEach(option=>{
+                    option.selected && selecteds.push(option.text)
+                })
+                setTemplateValue(wue.data,modle,selecteds,wue)
+                console.log(wue)
+            }else{
+                const selectedIndex = this.options.selectedIndex;
+                setTemplateValue(wue.data,modle,this.options[selectedIndex].text)
+            }
         }
     }
 
@@ -456,6 +468,12 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
     }
 
     const modle = vnode.properties.attributes[propkey];
+    const { parent,lastKey } = findParentData(modle,data)
+    const parentOriginal = parent.getOriginalObject;
+    
+    /** 待补充 这么做的原因 有点困了 */
+    if( !parentOriginal ) return vnode;
+    
     const { tagName,properties:{ type }  } = vnode;
     const bindEl = wue.__isComponent?wue.prante.el:wue.el;
     
@@ -480,9 +498,6 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
         if( isRadio(tagName,type) ) return 'radio';
         if( isSelect(tagName,type) ) return 'select'
     }
-
-    const { parent,lastKey } = findParentData(modle,data)
-    const parentOriginal = parent.getOriginalObject;
 
     if( getInputType(tagName,type) === 'text' ){  
 
@@ -612,6 +627,8 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
     }
 
     if( getInputType(tagName,type) === 'select' ){
+
+        const isMultiple = vnode.properties.attributes.hasOwnProperty('multiple')
         
         let wmodelsSelectMap = wue.wmodels.select.has(parentOriginal) ?
                                wue.wmodels.select.get(parentOriginal) : 
@@ -627,9 +644,16 @@ wueInDirective['w-model'] = (vnode,propkey,data,wue) => {
             wModelsSelects.indexOf(doc) === -1 && wModelsSelects.push( doc );
             /** 等待options渲染完 */
             let wmodel = getTemplateValue(wue.data,modle,modle);
+            
             setTimeout(()=>{
                 [...doc.options].forEach(option=>{
-                    const isSelected = option.text === wmodel;
+                    let isSelected;
+                    if(isMultiple){
+                        //要判断 wmode 是否数组 否则抛出错误
+                        isSelected = wmodel.indexOf(option.text) !== -1;
+                    }else{
+                        isSelected = option.text === wmodel;
+                    }
                     prop(option,'selected',isSelected ? true : null)
                 })
             })

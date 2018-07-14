@@ -11,7 +11,8 @@ const {  isUdf,
          isFunction,
          isPlainObject,
          isArray,
-         prop } = require('./uilt');
+         prop,
+         deep } = require('./uilt');
 
 /** 渲染VNode模块 */
 var { renderVNode } = require('./renderVNode');
@@ -45,10 +46,11 @@ const warn = require('./warn').default;
     
     /** wue 方法 */
     this.methods = option.methods;
-    this.observerdata = option.data;
-    this.olddata = JSON.parse( JSON.stringify( this.observerdata ) );
+    /** 一个未被Wue处理过的data  要和wue.data做出区分*/
+    this.observerdata =  deep( option.data );
+    this.olddata = deep( option.data );
     this.watch = option.watch ? option.watch : {};
-    this.data = setOriginalObject( this.observerdata,createObserver(Object.create(null),option.data,that) );
+    this.data = setOriginalObject( this.observerdata,createObserver(Object.create(null),this.observerdata,that) );
     //技术不行 -。- 有什么好办法可以记住模板的模型
     this.noRenderVNode = new renderVNode( this.el ).render( {},that );
 
@@ -58,6 +60,10 @@ const warn = require('./warn').default;
       checkbox:new Map(),
       radio:new Map(),
       select:new Map()
+    }
+
+    this.forceUpdateData = () =>{
+      this.data = setOriginalObject( this.observerdata,createObserver(Object.create(null),this.observerdata,that) );
     }
 
     /** 初始化时执行 */
@@ -171,10 +177,8 @@ const warn = require('./warn').default;
   // wue.data 是会监听数据改变的object
   // Wue.set 要做的是在data上增加新字段 修改可以触发视图更新 如果直接data.a = '1' 虽然可以设置数据但是不可以触发视图更新
   Wue.set = function(wueObserverData,setdata,wue){
-
     //判断wueObserverData 和 setData 是否 objectd对象
     //判断wue的构造函数是否 Wue
-
     createObserver(wueObserverData,setdata,wue,(key,value,data,wue)=>{
         //set后 触发observer
         observer(key,value,data,wue);
@@ -202,23 +206,39 @@ const warn = require('./warn').default;
   window.Wue = Wue;
   
   //数据劫持
-  function createObserver(observerData,data,wue,cb){
+  /**
+   * @param {*} observerData 要创建的 监听对象 最后返回这个对象  
+   * @param {*} data 原始的对象数据 使用者wue配置的data 备注 : 传这个是为了执行 observer时  observerdata[key] = newValue; 修改数据 然后再和旧数据对比 很重要
+   * @param {*} wue wue实例对象
+   * @param {*} cb 监听完一个属性后的实行的回调
+   * @returns {*} observerData 传进来的第一个参数
+   */
 
-    for(let x in data){
+  function createObserver(observerData,data,wue,cb){
+    
+    const clone = deep( data )
+    
+    for(let x in clone){
 
       /*是纯Object的继续递归*/
-      if( isPlainObject(data[x]) ){
-        data[x] = setOriginalObject( data[x],createObserver(Object.create(null),data[x],wue) )
+      if( isPlainObject(clone[x]) ){
+        clone[x] = setOriginalObject( clone[x],createObserver(Object.create(null),data[x],wue) )
       }
 
       //数组的拦截
-      if( isArray(data[x]) ){
-        createObserverArr(x,data,data[x],wue)
+      if( isArray(clone[x]) ){
+        let cloenArr = deep( clone[x] ); 
+        cloenArr = cloenArr.map((val,idx)=>{
+          if(isObject(val)){  return setOriginalObject( cloenArr,createObserver(Object.create(null),data[x][idx],wue) ) }
+          else if(isArray(val)){ return data[x][idx]; }
+          else{ return val; }
+        })
+        clone[x] = createObserverArr(x,data,cloenArr,data[x],wue)
       }
 
       Object.defineProperty(observerData,x,{
         get(v){
-          return data[x];
+          return clone[x];
         },
         set(newValue){
 
@@ -246,26 +266,30 @@ const warn = require('./warn').default;
             const isChecked = input.value == newValue;
             prop(input,'checked',isChecked ? true:null );
           })
-          wue.wmodels.select.has(data) && wue.wmodels.select.get(data).get(x).forEach(select =>{
-            [...select.options].forEach(option=>{
-              const isSelected = option.text == newValue;
-              prop(option,'selected',isSelected ? true:null)
-            })
-          })
+          // wue.wmodels.select.has(data) && wue.wmodels.select.get(data).get(x).forEach(select =>{
+          //   [...select.options].forEach(option=>{
+          //     const isSelected = option.text == newValue;
+          //     prop(option,'selected',isSelected ? true:null)
+          //   })
+          // })
         },
         enumerable : true,
         configurable : true
       });
 
-      cb && cb(x,data[x],wue.observerdata,wue) 
+      cb && cb(x,clone[x],wue.observerdata,wue) 
 
     }
 
     return observerData;
   }
 
-
   /** 设置源对象 */
+  /**
+   * @param {object} orgin 源对象 没有处理数据监听的对象
+   * @param {object} data 处理成数据监听的对象 
+   * @return {object} orgin
+   */
   function setOriginalObject(origin,data){
     Object.defineProperty(data,'getOriginalObject',{
       get:function(v){
@@ -279,7 +303,7 @@ const warn = require('./warn').default;
   }
 
   /** 数组代理 伪数组 */
-  function createObserverArr(key,observerdata,arr,wue){
+  function createObserverArr(key,observerdata,arr,originArr,wue){
     
     const arrhandles = [
       'push',
@@ -292,6 +316,18 @@ const warn = require('./warn').default;
 
     let proxpArr = [];
 
+    const observerSetArrData = (key,arr,originArr) => {
+      originArr.forEach((v,i)=>{
+        Object.defineProperty(arr,i,{
+          get(){ return v },
+          set(newValue){
+            // watch(key,[],arr,wue);
+            observer(i,newValue,originArr,wue);
+          }
+        })
+      })
+    }
+
     arrhandles.forEach(v=>{
       Object.defineProperty(arr,v,{
         get:function(){
@@ -300,8 +336,9 @@ const warn = require('./warn').default;
           }
           return (...arg)=>{
                   const ret = proxpArr[v].apply(arr,arg);
+                  observerSetArrData(key,arr,originArr)
                   watch(key,[],arr,wue);
-                  observer( key,arr,observerdata,wue );
+                  observer(key,arr,observerdata,wue);
                   return ret;  
                 }
         },
@@ -309,6 +346,10 @@ const warn = require('./warn').default;
         configurable : false
       })
     })
+
+    observerSetArrData(key,arr,originArr,proxpArr)
+
+    return arr;
 
   }
 
@@ -321,25 +362,22 @@ const warn = require('./warn').default;
   /** 第三个参数有点多余 待修改 */
   function observer(key,newValue,observerdata,wue){
 
+      console.log( 'observer' )
+ 
+
       observerdata[key] = newValue;
-      
-      // console.log( observerdata )
-      // console.log( wue.observerdata );
+      console.log(  observerdata )
+      console.log( wue.observerdata.arr === observerdata )
 
       var currentVnode = new renderVNode( create( wue.noRenderVNode ) ).render( wue.olddata,wue,false );     
       /* wue.observerdata 7.13 wue.wue.observerdata 改为 wue.data */    
       var updateVnode  =  new renderVNode( create( wue.noRenderVNode ) ).render( wue.observerdata,wue,true );
-      
-
-      console.log( updateVnode );
 
       var patches = diff( currentVnode,updateVnode );
-
       patch( wue.el , patches );
       
       /** 记录data 为下一次diff的旧data */
-      wue.olddata = JSON.parse( JSON.stringify(wue.observerdata) );
-
+      wue.olddata = deep( wue.observerdata );
   }
 
 })();

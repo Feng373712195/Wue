@@ -24,14 +24,48 @@
 
 	<div id='app' class="nonono">
 
-			<div id="example-5">
-				<select multiple >
+			<!-- <div id="example-5">
+				<select multiple w-model="selected" >
+					<option disabled value="">请选择</option>
+					<option>A</option>
+					<option>B</option>
+					<option>C</option>
+				</select>
+				<select multiple w-model="selected" >
+					<option disabled value="">请选择</option>
+					<option>A</option>
+					<option>B</option>
+					<option>C</option>
+				</select>
+				<select multiple w-model="selected" >
+					<option disabled value="">请选择</option>
+					<option>A</option>
+					<option>B</option>
+					<option>C</option>
+				</select>
+				<select multiple w-model="selected" >
 					<option disabled value="">请选择</option>
 					<option>A</option>
 					<option>B</option>
 					<option>C</option>
 				</select>
 				<span>Selected: {{ selected }}</span>
+			</div> -->
+
+			<!-- <div>
+				<div>one demo</div>
+				<div>{{ arr[0].x }}</div>
+				<div>{{ arr[1].x }}</div>
+				<div>{{ arr[2].x }}</div>
+			</div> -->
+
+			<div>
+				<div>two demo</div>
+				<div>{{ text }}</div>
+				<div>{{ arr2[0][1] }}</div>
+				<div>{{ arr2[1][1] }}</div>
+				<div>{{ arr2[2][1] }}</div>
+				<div>{{ arr2 }}</div>
 			</div>
 
 		<!-- <img src="" alt="" /> -->
@@ -69,6 +103,7 @@
 		
 				
 		'use strict'
+		
 
 		// var checkbox = document.querySelectorAll('input[type="checkbox"]')
 		// console.log( 'html console' )
@@ -126,7 +161,7 @@
 		var wue = new Wue({ 
 						el:'#app', 
 						data:{
-							selected:'B',
+							selected:['B'],
 							picked:'One',
 							checked:["1"],
 							isActive:true,
@@ -163,6 +198,7 @@
 							},
 							time:0,
 							arr:[{x:1,y:2,z:3},{x:1,y:2,z:3},{x:1,y:2,z:3}],
+							arr2:[[1,2],[2,3],[4,5]],
 							obj1:{x:1,y:2,z:3}
 						},
 						watch:{
@@ -244,6 +280,12 @@
 		//  setInterval(() => {
 		// 	wue.data.isActive = !wue.data.isActive;
 		//  }, 1000);
+
+		setTimeout(()=>{
+			console.log( wue.data.arr2.push('123') )
+			console.log( wue.data.arr2[1] = '321' )
+			// wue.data.text = '加油'
+		})
 		
 		console.timeEnd();
 		// wue.data.userInfo.arr.push(11)
@@ -265,6 +307,21 @@
 		// },3000)
 
 		// console.log( new Function('var t = 0++; return t;')() );	
+		
+		// console.log('hahah')
+		// var a = [1,2,3];
+		
+		// a.forEach((v,idx)=>{
+		// 	Object.defineProperty(a,idx,{
+		// 		get:function(){ return v },
+		// 		set:function(){
+		// 			console.log('set')
+		// 		}
+		// 	})
+		// })
+
+		// a[0] = 'nono'
+
 	</script>
 </body>
 </html>

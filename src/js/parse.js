@@ -57,7 +57,7 @@ function findIdentifier(node,data){
               
               if( node[k].hasOwnProperty('type') && node[k].type === 'Identifier' ){
 
-                  // console.log('Identifier');
+                  console.log('Identifier');
 
                   const curt = node[k];
                   if( !Object.assign({},data).hasOwnProperty(curt.name) ){
@@ -218,7 +218,7 @@ function findParentData(key,data){
   if( !(expression && expression.type === 'MemberExpression') ){
     console.error('key no memberExpression')
   }
-
+  
   const lastKey = expression.property.value || expression.property.name;
   const dataRoot = { parent:data,def:1 };
   const dataLink = [];
@@ -230,14 +230,13 @@ function findParentData(key,data){
     if(loopCurrtObj.type === "MemberExpression")
        dataLink.push({  
                         computed:loopCurrtObj.computed,
-                        name: loopCurrtObj.property.value || loopCurrtObj.property.name 
+                        name: loopCurrtObj.property.name || loopCurrtObj.property.value
                     })
   }
 
   dataLink.reverse().forEach( link =>{
      currtParent = currtParent.next = { parent:currtParent.parent[link.name],def:currtParent.def + 1 }
   })
-
   return  { parent:currtParent.parent,lastKey } 
 }
 

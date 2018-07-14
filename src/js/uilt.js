@@ -91,7 +91,7 @@ function attr(node,name,value){
   if( name && value !== undefined ){
     value !== null ? node.setAttribute(name,value):
                      node.removeAttribute(name);
-  }else if(name) node.getAttribute(name);
+  }else if(name) return node.getAttribute(name);
 }
 
 function prop(node,name,value){
@@ -99,9 +99,28 @@ function prop(node,name,value){
   if( name && value !== undefined ){
     value !== null ? (node[name] = value):
                      (node[name] = null);
-  }else if(name) node[name];
+  }else if(name) return node[name];
 }
 
+function deep(data){
+  let o ;
+  if( isArray(data) ){
+    o = [];
+    data.forEach( (val,index) => {
+      if( isArray(val) || isObject(val) ) o[index] = deep(val);
+      else{ o[index] = val };
+    })
+  }
+  if( isObject(data) ){
+    o = {};
+    for(var x in data){
+      if( isArray(data[x]) || isObject(data[x]) ) o[x] = deep(data[x]);
+      else{  o[x] = data[x] };
+    }
+  }
+
+  return o;
+}
 
 module.exports  = {
     isUdf,
@@ -120,5 +139,6 @@ module.exports  = {
     HyphenTrunHump,
     HumpTrunHyphen,
     attr,
-    prop
+    prop,
+    deep
 }
