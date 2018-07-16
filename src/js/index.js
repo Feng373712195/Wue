@@ -19,6 +19,10 @@ var { renderVNode } = require('./renderVNode');
 /** 报错内容模块 */
 const warn = require('./warn').default;
 
+// wue 创建两个对象 
+//       一个可以监听对象的对象
+//       一个纯对象 但是会跟着监听对象的数据变动而改变
+
 (function(){
 
   const dom = document;
@@ -51,6 +55,7 @@ const warn = require('./warn').default;
     this.olddata = deep( option.data );
     this.watch = option.watch ? option.watch : {};
     this.data = setOriginalObject( this.observerdata,createObserver(Object.create(null),this.observerdata,that) );
+
     //技术不行 -。- 有什么好办法可以记住模板的模型
     this.noRenderVNode = new renderVNode( this.el ).render( {},that );
 
@@ -216,6 +221,7 @@ const warn = require('./warn').default;
 
   function createObserver(observerData,data,wue,cb){
     
+    //源对象 切断关系
     const clone = deep( data )
     
     for(let x in clone){
@@ -230,7 +236,7 @@ const warn = require('./warn').default;
         let cloenArr = deep( clone[x] ); 
         cloenArr = cloenArr.map((val,idx)=>{
           if(isObject(val)){  return setOriginalObject( cloenArr,createObserver(Object.create(null),data[x][idx],wue) ) }
-          else if(isArray(val)){ return data[x][idx]; }
+          else if(isArray(val)){ return val; }
           else{ return val; }
         })
         clone[x] = createObserverArr(x,data,cloenArr,data[x],wue)
@@ -238,10 +244,11 @@ const warn = require('./warn').default;
 
       Object.defineProperty(observerData,x,{
         get(v){
+          // 返回是这个 修改也是这个
           return clone[x];
         },
         set(newValue){
-
+          
           watch(x,newValue,data[x],wue);
           // observer(x,newValue,wue.observerdata,wue);
           observer(x,newValue,data,wue);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
@@ -280,7 +287,7 @@ const warn = require('./warn').default;
       cb && cb(x,clone[x],wue.observerdata,wue) 
 
     }
-
+    
     return observerData;
   }
 
@@ -322,7 +329,9 @@ const warn = require('./warn').default;
           get(){ return v },
           set(newValue){
             // watch(key,[],arr,wue);
-            observer(i,newValue,originArr,wue);
+            // observer(i,newValue,originArr,wue);
+            console.log( originArr )
+            console.log('123')
           }
         })
       })
@@ -335,19 +344,19 @@ const warn = require('./warn').default;
             return function(){ return JSON.stringify(this) }
           }
           return (...arg)=>{
-                  const ret = proxpArr[v].apply(arr,arg);
-                  observerSetArrData(key,arr,originArr)
-                  watch(key,[],arr,wue);
-                  observer(key,arr,observerdata,wue);
+                  const ret = proxpArr[v].apply(originArr,arg);
+                  // watch(key,[],arr,wue);
+                  observer(key,originArr,observerdata,wue);
+                  // observerSetArrData(key,arr,originArr)
                   return ret;  
-                }
+          }
         },
         enumerable : false,
         configurable : false
       })
     })
 
-    observerSetArrData(key,arr,originArr,proxpArr)
+    observerSetArrData(key,arr,originArr)
 
     return arr;
 
@@ -363,7 +372,6 @@ const warn = require('./warn').default;
   function observer(key,newValue,observerdata,wue){
 
       console.log( 'observer' )
- 
 
       observerdata[key] = newValue;
       console.log(  observerdata )
