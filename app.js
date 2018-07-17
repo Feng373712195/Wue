@@ -7,8 +7,8 @@ const app = new koa();
 
 var router = new Router();
 
-app.use(view(path.resolve(__dirname,'src/html'),{ extensions:'html' }));
-app.use(serve(path.resolve(__dirname,'src')));
+app.use(view(path.resolve(__dirname,'view'),{ extensions:'html' }));
+app.use(serve(__dirname));
 
 router.get('/',async ctx=>{
 	await ctx.render('index');
