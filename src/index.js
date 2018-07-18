@@ -11,7 +11,7 @@ const wue = new Wue({
     }
 })
 
-console.log( wue.el )
+// wue.set({ new:'hahah' })
 
 // module.exports = {
 //     Wue

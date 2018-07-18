@@ -1,9 +1,12 @@
-import { deep,isPlaninObject,isArray,isObject } from '../../uilt'
 import observer from '../observer'
+import { deep,isPlaninObject,isArray,isObject } from '../../uilt'
+import setOriginalObject from '../setOriginalObject'
 import createObserverArr from '../createObserverArr'
 
 const createObserver = ( observerdata,orginal ) => {
     
+    // observerdata = setOriginalObject( orginal , observerdata )
+
     for(let x in orginal){
 
         let observerObj;
@@ -26,7 +29,7 @@ const createObserver = ( observerdata,orginal ) => {
 
         if( isArray(orginal[x]) ){
             observerArr = deep( orginal[x] )
-            orginal[x].forEach( (item,index) => { 
+            orginal[x].forEach((item,index) => { 
                 if(isObject(item)) observerArr.splice( index,1, createObserver( Object.create(null),item ) )
                 if(isArray(item))  observerArr.splice( index,1, createObserArrItem(orginal[x],index,item) )
             })

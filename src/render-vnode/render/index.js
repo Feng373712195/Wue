@@ -39,7 +39,6 @@ const render = function(data,wue,isprint){
           isArray(renderChilds) ? ( childsVNode = [].concat( childsVNode,renderChilds ) ) : childsVNode.push( renderChilds );
         /*Text节点*/ 
         }else if(child.nodeType === 3){
-          console.log( this )
           childsVNode.push( this.createVText( this.isForRender ? child.data : findTmpText(child.data,data,isprint) )  )
         /*注释节点*/
         }else if(child.nodeType === 8){
