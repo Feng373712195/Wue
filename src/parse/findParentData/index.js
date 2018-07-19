@@ -1,10 +1,11 @@
-import acorn from 'acorn';
+// const acorn = require('acorn')
+
+const acorn = require('acorn')
+
+console.log( acorn )
 
 function findParentData(key,data){
 
-    // console.log( 'findParentData' )
-    // console.log( data )
-  
     const ast = acorn.parse(`data.${key}`)  
     const expression = ast.body[0].expression
   

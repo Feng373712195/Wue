@@ -11,7 +11,6 @@ import isTrue from './isTrue'
 import isFalse from './isFalse'
 
 import getElement from './getElement'
-
 import deep from './deep'
 import hyphenTrunHump from './hyphenTrunHump'
 import humpTrunHyphen from './humpTrunHyphen'

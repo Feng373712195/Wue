@@ -1,11 +1,14 @@
 import { isTrue,isFalse } from '../../uilt'
+import { parseAst } from '../../parse'
 
-const welseif = (vnode,propkey,data,wue,currtIftodo,wIfcount) => {
+const welseif = (vnode,propkey,data,wue,wIfManager) => {
 
     if( !wue.init_render ){
         return vnode;
     }
-  
+    
+    const { wIfcount,wIftodo } = wIfManager
+
     const props = vnode.properties;
     const condition = props.attributes[propkey];
     const parseCondition = parseAst(condition,data)

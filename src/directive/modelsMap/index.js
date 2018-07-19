@@ -41,7 +41,4 @@ class wmodelsMap{
 
 }
 
-// import ModelsMap from './directive/models'
-// var modelsMap = new ModelsMap();
-
 export default wmodelsMap

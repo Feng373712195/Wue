@@ -22,7 +22,7 @@ const  getInputType = (tagName,type)=>{
     if( isSelect(tagName,type) ) return 'select'
 }
 
-const wmodel = (vnode,propkey,data,wue) => {
+const wmodel = (vnode,propkey,data,wue,modelMap,wModelHandle) => {
     
     if( !wue.init_render ){
         return vnode;
@@ -32,30 +32,18 @@ const wmodel = (vnode,propkey,data,wue) => {
     const { tagName,properties:{ type }  } = vnode;
 
     const bindEl = wue.__isComponent?wue.prante.el:wue.el;
-    
     const { parent,lastKey } = findParentData(modle,data)
-    
     const parentOriginal = parent.getOriginalObject;
 
     if( getInputType(tagName,type) === 'text' ){  
 
-        let wmodelsTextMap = wue.wmodels.text.has(parent) ?
-                                 wue.wmodels.text.get(parent) : 
-                                 wue.wmodels.text.set(parent,new Map()) && wue.wmodels.text.get(parent);
-
-        const wModelTexts = wmodelsTextMap.has(lastKey) ? 
-                            wmodelsTextMap.get(lastKey) :
-                            wmodelsTextMap.set(lastKey,[]) && wmodelsTextMap.get(lastKey);
+        const wModelTexts = modelMap.setWmodel('text',parentOriginal,lastKey)
         
         vnode.create = function(doc){
-            // !wue.wmodels.text.hasOwnProperty(modle) && (wue.wmodels.text[modle] = [])
-            // wue.wmodels.text[modle].indexOf(doc) === -1 && wue.wmodels.text[modle].push( { dom:doc,parent:findParentData.parent } );
-            // wmodelsTextMap.set(parent,{ input:doc,model:lastKey });
             wModelTexts.indexOf(doc) === -1 && wModelTexts.push( doc );
 
             const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'text');
             doc.value = getTemplateValue(wue.data,modle,modle);
-            
             if( !wue.init_render ){
                 wue.__firstMount.push( bindEl => bindEl.addEventListener('input',inputWModelHandle,false) )
             }else{
@@ -65,10 +53,7 @@ const wmodel = (vnode,propkey,data,wue) => {
     
         vnode.destroy = function(doc){
             /** 从 wue.wmodels 移除 */
-            // wue.wmodels.text[modle].splice( wue.wmodels.text[modle].indexOf(doc) ,1);
-            wModelTexts.splice( wModelTexts.indexOf(doc) ,1);
-            wModelTexts.length === 0 && wModelTexts.delete();
-            [...wmodelsTextMap].length === 0 && wmodelsTextMap.delete();
+            modelMap.delWmodel('text',doc,parentOriginal,lastKey)
 
             bindEl.removeEventListener('input',inputWModelHandle);
         };
@@ -76,20 +61,11 @@ const wmodel = (vnode,propkey,data,wue) => {
     }
 
     if( getInputType(tagName,type) === 'checkbox' ){
-        
-        let wmodelsCheckboxMap = wue.wmodels.checkbox.has(parent) ?
-                                 wue.wmodels.checkbox.get(parent) : 
-                                 wue.wmodels.checkbox.set(parent,new Map()) && wue.wmodels.checkbox.get(parent);
-        
-        const wModelCheckboxs = wmodelsCheckboxMap.has(lastKey) ? 
-                                wmodelsCheckboxMap.get(lastKey) :
-                                wmodelsCheckboxMap.set(lastKey,[]) && wmodelsCheckboxMap.get(lastKey);
+            
+        const wModelCheckboxs = modelMap.setWmodel('checkbox',parentOriginal,lastKey)
 
         vnode.create = function(doc){
 
-            // !wue.wmodels.checkbox.hasOwnProperty(modle) && (wue.wmodels.checkbox[modle] = [])
-            // wue.wmodels.checkbox[modle].indexOf(doc) === -1 && wue.wmodels.checkbox[modle].push( doc );
-            // wue.wmodels.checkbox.set(parent.getOriginalObject,{ input:doc,model:lastKey });
             wModelCheckboxs.indexOf(doc) === -1 && wModelCheckboxs.push( doc );
 
             let wmodel = getTemplateValue(wue.data,modle,modle);
@@ -118,24 +94,16 @@ const wmodel = (vnode,propkey,data,wue) => {
         }
 
         vnode.destroy = function(doc){
-             /** 从 wue.wmodels 移除 */
-            wModelCheckboxs.splice( wModelCheckboxs.indexOf(doc) ,1);
-            wModelCheckboxs.length === 0 && wModelCheckboxs.delete();
-            [...wmodelsCheckboxMap].length === 0 && wmodelsCheckboxMap.delete();
+            /** 从 wue.wmodels 移除 */
+            modelMap.delWmodel('checkbox',doc,parentOriginal,lastKey)
 
             bindEl.removeEventListener('change',inputWModelHandle);
         }
     }
 
     if( getInputType(tagName,type) === 'radio' ){
-
-        let wmodelsRadioMap = wue.wmodels.radio.has(parent) ?
-                              wue.wmodels.radio.get(parent) : 
-                              wue.wmodels.radio.set(parent,new Map()) && wue.wmodels.radio.get(parent);
         
-        const wModelsRadios = wmodelsRadioMap.has(lastKey) ? 
-                              wmodelsRadioMap.get(lastKey) :
-                              wmodelsRadioMap.set(lastKey,[]) && wmodelsRadioMap.get(lastKey);
+        const wModelsRadios = modelMap.setWmodel('radio',parentOriginal,lastKey)
         
         vnode.create = function(doc){
             const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'radio')
@@ -156,23 +124,15 @@ const wmodel = (vnode,propkey,data,wue) => {
 
         vnode.destroy = function(doc){
             /** 从 wue.wmodels 移除 */
-           wModelsRadios.splice( wModelsRadios.indexOf(doc) ,1);
-           wModelsRadios.length === 0 && wModelsRadios.delete();
-           [...wModelsRadios].length === 0 && wModelsRadios.delete();
+            modelMap.delWmodel('radio',doc,parentOriginal,lastKey)
 
-           bindEl.removeEventListener('change',inputWModelHandle);
+            bindEl.removeEventListener('change',inputWModelHandle);
        }
     }
 
     if( getInputType(tagName,type) === 'select' ){
         
-        let wmodelsSelectMap = wue.wmodels.select.has(parent) ?
-                               wue.wmodels.select.get(parent) : 
-                               wue.wmodels.select.set(parent,new Map()) && wue.wmodels.select.get(parent);
-
-        const wModelsSelects = wmodelsSelectMap.has(lastKey) ? 
-                               wmodelsSelectMap.get(lastKey) :
-                               wmodelsSelectMap.set(lastKey,[]) && wmodelsSelectMap.get(lastKey);
+        const wModelsSelects = modelMap.setWmodel('select',parentOriginal,lastKey)
 
         vnode.create = function(doc){
             const selectWModelHandle = wModelHandle.bind(doc,data,modle,wue,'select')
@@ -196,11 +156,9 @@ const wmodel = (vnode,propkey,data,wue) => {
 
         vnode.destroy = function(doc){
             /** 从 wue.wmodels 移除 */
-           wModelsSelects.splice( wModelsSelects.indexOf(doc) ,1);
-           wModelsSelects.length === 0 && wModelsSelects.delete();
-           [...wModelsSelects].length === 0 && wModelsSelects.delete();
+            modelMap.delWmodel('select',doc,parentOriginal,lastKey)
 
-           bindEl.removeEventListener('change',selectWModelHandle);
+            bindEl.removeEventListener('change',selectWModelHandle);
         }
     }
 

@@ -1,14 +1,16 @@
 import { isTrue,isFalse } from '../../uilt'
 import { parseAst } from '../../parse'
 
-const wif = (vnode,propkey,data,wue,currtIftodo,wIfcount) => {
+const wif = (vnode,propkey,data,wue,wIfManager) => {
 
     if( !wue.init_render ){
         return vnode;
     }
+    
+    const { wIfcount,wIftodo } = wIfManager
 
     //统计wue 执行过多少次 w-if
-    wIfcount++;
+    wIfManager.wIfcount++;
 
     //w-if 嵌套 w-if
     const props = vnode.properties;

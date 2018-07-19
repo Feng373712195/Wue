@@ -1,4 +1,4 @@
-import acorn from 'acorn'
+const acorn = require('acorn')
 import escodegen from 'escodegen'
 
 /** parseWon 需要传入wue 因为需要拿到wue.methods */

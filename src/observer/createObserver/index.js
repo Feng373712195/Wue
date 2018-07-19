@@ -3,9 +3,9 @@ import { deep,isPlaninObject,isArray,isObject } from '../../uilt'
 import setOriginalObject from '../setOriginalObject'
 import createObserverArr from '../createObserverArr'
 
-const createObserver = ( observerdata,orginal ) => {
+const createObserver = ( observerdata,orginal,wue ) => {
     
-    // observerdata = setOriginalObject( orginal , observerdata )
+    observerdata = setOriginalObject(  observerdata , orginal )
 
     for(let x in orginal){
 
@@ -43,10 +43,10 @@ const createObserver = ( observerdata,orginal ) => {
                 return orginal[x];
             },
             set(newVal){
-                observer(orginal,x,newVal);               
+                observer(orginal,x,newVal,wue);               
             },
-            enumerable : false,
-            configurable : false
+            enumerable : true,
+            configurable : true
         })
     }
 

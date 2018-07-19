@@ -1,4 +1,4 @@
-import acorn from 'acorn'
+const acorn = require('acorn')
 import escodegen from 'escodegen'
 import findIdentifier from '../findIdentifier'
 

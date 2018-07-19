@@ -1,4 +1,4 @@
-const won = (vnode,propkey,data,wue) => {
+const won = (vnode,propkey,data,wue,entrustHandle) => {
 
     if( !wue.init_render ){
         return vnode;
@@ -11,7 +11,7 @@ const won = (vnode,propkey,data,wue) => {
     let bindEl = wue.__isComponent?wue.prante.el:wue.el;
 
     vnode.create = function(doc){
-        const EntrustOfElHandle = EntrustHandle.bind(bindEl,doc,parseWOn( EventHandle,wue.data,wue ),wue);
+        const EntrustOfElHandle = entrustHandle.bind(bindEl,doc,parseWOn( EventHandle,wue.data,wue ),wue);
         if( !wue.init_render ){
             wue.__firstMount.push( bindEl => bindEl.addEventListener(EventType,EntrustOfElHandle) )
         }else{
@@ -20,7 +20,7 @@ const won = (vnode,propkey,data,wue) => {
     };
 
     vnode.destroy = function(doc){
-        bindEl.removeEventListener(EventType,EntrustHandle);
+        bindEl.removeEventListener(EventType,entrustHandle);
     };
     
     return vnode

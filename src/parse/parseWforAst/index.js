@@ -1,4 +1,4 @@
-import acorn from 'acorn'
+const acorn = require('acorn')
 
 const parseWforAst = (expression,data) => {
 

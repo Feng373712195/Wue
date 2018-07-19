@@ -3,14 +3,14 @@
  * @param data {Object} 要设置的对象
  * @returns data
 */
-const setOrginalObject = (origin,data) => {
-
+const setOrginalObject = (data,origin) => {
+        
     Object.defineProperty(data,'getOriginalObject',{
         get:function(v){
             return origin
         },
         enumerable : false,
-        configurable : false
+        configurable : true
     });
 
     return data;

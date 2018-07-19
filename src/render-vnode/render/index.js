@@ -12,13 +12,6 @@ const render = function(data,wue,isprint){
     let childsVNode = [];
     let props  = sliceProp( propReg(this.warpHtml,this.root.tagName) )
 
-    if( wue.__isComponent && (!wue.isReplaceEl) ){
-        /** isReplaceEl 组件的el要替换成挂载在docment节点上的节点 否则diff无反应 也可以进行组件的局部刷新 */
-        wue.isReplaceEl = true;
-        // 已经没有hook 可以换成vnode create;
-        // wue.el = node
-    }
-
     /*是否for节点*/
     props.attributes['w-for'] && (this.isForRender = true);
 
@@ -46,7 +39,18 @@ const render = function(data,wue,isprint){
         }
     }
 
-    return this.createVNode(this.root.tagName,props,childsVNode,data,wue,getNodeKey(props.attributes) )
+    const returnVnode = this.createVNode(this.root.tagName,props,childsVNode,data,wue,getNodeKey(props.attributes) );
+
+    /** 是否组件对属性的处理 */ 
+    if( wue.isComponent && (!wue.isReplaceEl) ){
+      /** isReplaceEl 组件的el要替换成挂载在docment节点上的节点 否则diff无反应 也可以进行组件的局部刷新 */
+      returnVnode.create = (node) => { 
+        wue.isReplaceEl = true
+        wue.el = node 
+      }
+    }
+    
+    return returnVnode
 }
 
 export default render;

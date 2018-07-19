@@ -1,7 +1,7 @@
 import observer from '../observer'
 import { isArray,isObject } from '../../uilt'
 
-const observerSetArrData = ( observerArr,originArr ) => {
+const observerSetArrData = ( observerArr,originArr,wue ) => {
     observerArr.forEach((v,i)=>{
       Object.defineProperty(observerArr,i,{
         get(){
@@ -9,7 +9,7 @@ const observerSetArrData = ( observerArr,originArr ) => {
           return  originArr[i]
         },
         set(newValue){
-          observer(originArr,i,newValue)
+          observer(originArr,i,newValue,wue)
         }
       })
     })

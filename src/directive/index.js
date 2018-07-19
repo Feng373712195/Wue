@@ -13,12 +13,15 @@ import wmodel from '../directive/w-model'
 
 import ModelsMap from "./modelsMap"
 
-/* [w-if w-else w-else-if] wedget数组 */
-let wIftodo = [];
+// wif 管理对象 
+const wIfManager = {
+    /* [w-if w-else w-else-if] wedget数组 */
+    wIftodo:[],
+    /* 调用w-if 次数 */
+    wIfcount:0
+}
 
-/* 调用w-if 次数 */
-let wIfcount = 0;
-
+// wModel 委托事件方法 
 const wModelHandle = function(data,modle,wue,InputType,e){
     if(e.target === this){
 
@@ -47,7 +50,7 @@ const wModelHandle = function(data,modle,wue,InputType,e){
     }
 }
 
-//委托事件
+// wOn 委托事件
 const entrustHandle = function(node,handles,wue,e){
     if(e.target === node){
         if(handles){
@@ -56,6 +59,7 @@ const entrustHandle = function(node,handles,wue,e){
     }
 }
 
+// wModel 存放wmodel Map 
 const modelMap = new ModelsMap();
 
 /* wue指令管理者 */
@@ -75,18 +79,18 @@ const wueInDirective = {
 
 const handleWueInDirective = (vnode,data,wue) =>{
 
+    const props = vnode.properties;
     Object.keys(props.attributes).forEach(propkey=>{
-
         if( !(propkey === 'w-on' && isVText(vnode)) ){
             if( propkey.match(/^w-bind|^\:/) ) wueInDirective['w-bind'].apply(wue,[vnode,propkey,data,wue])
-            else if( propkey.match(/^w-on:|^\@/) ) wueInDirective['w-on'].apply(wue,[vnode,propkey,data,wue])
-            else if( propkey === 'w-model' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue])
-            else if( propkey === 'w-if' || propkey === 'w-else' || propkey === 'w-else-if' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,wIftodo,wIfcount])
+            else if( propkey.match(/^w-on:|^\@/) ) wueInDirective['w-on'].apply(wue,[vnode,propkey,data,wue,entrustHandle])
+            else if( propkey === 'w-model' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,modelMap,wModelHandle])
+            else if( propkey === 'w-if' || propkey === 'w-else' || propkey === 'w-else-if' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,wIfManager])
             else wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue])
         }
-
     })
 
+    return vnode
 }
 
 export default handleWueInDirective
