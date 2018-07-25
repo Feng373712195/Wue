@@ -2,8 +2,6 @@
 
 const acorn = require('acorn')
 
-console.log( acorn )
-
 function findParentData(key,data){
 
     const ast = acorn.parse(`data.${key}`)  

@@ -1,4 +1,5 @@
 const acorn = require('acorn')
+import findIdentifier from '../findIdentifier'
 
 const parseWforAst = (expression,data) => {
 

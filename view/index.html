@@ -8,8 +8,33 @@
 </head>
 <body>
     <div id="one" >
-        <div class="hello" >{{msg}}</div>
-        <div>{{text}}</div>
+        <!-- <div w-for="(val,key,index) in arr2">
+            <div><span>index:{{ index }}</span> <span>val:{{ val }}</span> <span>key:{{ key }}</span></div>
+        </div> -->
+
+        <!-- <div w-for="(val2) in arr2">
+            <div w-on:click="hello" w-if="val2 == 111" :style="{ 'backgroundColor':bg }" >{{ val2 }}</div>
+            <div w-else >WAKAKA</div>
+        </div>  -->
+
+        <!-- <div>
+            <div w-if="show" >1</div>
+            <div w-else-if="show" >2</div>
+            <div w-else >3</div>
+        </div> -->
+
+        <!-- <select name="" id="">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+        </select> -->
+
+        <input type="text" w-model="text" />
+        <input type="text" w-model="text" />
+        <input type="text" w-model="text" />
+        <input type="text" w-model="text" />
+        <div>{{ text }}</div>
+
     </div>
     <script src="http://localhost:8081/dist/wue.js" ></script>
 </body>

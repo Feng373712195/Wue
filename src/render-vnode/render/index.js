@@ -27,6 +27,7 @@ const render = function(data,wue,isprint){
             childVNode.isForRender = true;
             props.attributes['w-for'] && (childVNode.delayForRender = true);
           }
+
           /** 递归对子节点渲染 */
           let renderChilds = childVNode.render(data,wue,isprint);
           isArray(renderChilds) ? ( childsVNode = [].concat( childsVNode,renderChilds ) ) : childsVNode.push( renderChilds );

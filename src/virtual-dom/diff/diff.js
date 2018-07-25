@@ -1,4 +1,4 @@
-var  { isArray } = require("../../uilt") 
+var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
 var isVNode = require("../vnode/is-vnode")

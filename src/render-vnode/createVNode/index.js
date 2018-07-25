@@ -1,4 +1,5 @@
 import { VNode } from '../../virtual-dom'
+// import { VNode } from 'virtual-dom'
 import components from '../../init/componentsMap'
 import handleWueInDirective from '../../directive'
 

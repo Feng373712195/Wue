@@ -1,0 +1,11 @@
+w-once 测试完毕
+
+w-text 测试完毕 
+
+w-html 测试完毕
+
+w-once 测试完毕
+
+w-for 状态良好
+
+w-if w-else w-else-if 状态良好

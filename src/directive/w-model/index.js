@@ -1,4 +1,6 @@
-import { findParentData } from '../../parse'
+import { findParentData,getTemplateValue,setTemplateValue } from '../../parse'
+import { isEmptyObject } from '../../uilt'
+import firstMount from '../../init/firstMount'
 
 /** 获取表单类型 */
 const  getInputType = (tagName,type)=>{
@@ -24,14 +26,14 @@ const  getInputType = (tagName,type)=>{
 
 const wmodel = (vnode,propkey,data,wue,modelMap,wModelHandle) => {
     
-    if( !wue.init_render ){
+    if( isEmptyObject(data) ){
         return vnode;
     }
 
     const modle = vnode.properties.attributes[propkey];
     const { tagName,properties:{ type }  } = vnode;
 
-    const bindEl = wue.__isComponent?wue.prante.el:wue.el;
+    const bindEl = wue.isComponent?wue.prante.el:wue.el;
     const { parent,lastKey } = findParentData(modle,data)
     const parentOriginal = parent.getOriginalObject;
 
@@ -45,7 +47,7 @@ const wmodel = (vnode,propkey,data,wue,modelMap,wModelHandle) => {
             const inputWModelHandle = wModelHandle.bind(doc,data,modle,wue,'text');
             doc.value = getTemplateValue(wue.data,modle,modle);
             if( !wue.init_render ){
-                wue.__firstMount.push( bindEl => bindEl.addEventListener('input',inputWModelHandle,false) )
+                firstMount.push( bindEl => bindEl.addEventListener('input',inputWModelHandle,false) )
             }else{
                 bindEl.addEventListener('input',inputWModelHandle,false)
             }
@@ -87,7 +89,7 @@ const wmodel = (vnode,propkey,data,wue,modelMap,wModelHandle) => {
             }
 
             if( !wue.init_render ){
-                wue.__firstMount.push( bindEl => bindEl.addEventListener('change',inputWModelHandle,false) )
+                firstMount.push( bindEl => bindEl.addEventListener('change',inputWModelHandle,false) )
             }else{
                 bindEl.addEventListener('change',inputWModelHandle,false)
             }
@@ -116,7 +118,7 @@ const wmodel = (vnode,propkey,data,wue,modelMap,wModelHandle) => {
             prop(doc,'checked',isChecked ? true:null );
 
             if( !wue.init_render ){
-                wue.__firstMount.push( bindEl => bindEl.addEventListener('change',inputWModelHandle,false) )
+                firstMount.push( bindEl => bindEl.addEventListener('change',inputWModelHandle,false) )
             }else{
                 bindEl.addEventListener('change',inputWModelHandle,false)
             }
@@ -148,7 +150,7 @@ const wmodel = (vnode,propkey,data,wue,modelMap,wModelHandle) => {
             })
 
             if( !wue.init_render ){
-                wue.__firstMount.push( bindEl => bindEl.addEventListener('change',selectWModelHandle,false) )
+                firstMount.push( bindEl => bindEl.addEventListener('change',selectWModelHandle,false) )
             }else{
                 bindEl.addEventListener('change',selectWModelHandle,false)
             }

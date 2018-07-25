@@ -1,3 +1,5 @@
+import findParentData from '../findParentData'
+
 const setTemplateValue = (data,key,value) => {
     // console.log('setTemplateValue')
     const { parent,lastKey } = findParentData(key,data)

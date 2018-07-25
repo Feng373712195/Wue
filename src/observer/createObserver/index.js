@@ -2,6 +2,7 @@ import observer from '../observer'
 import { deep,isPlaninObject,isArray,isObject } from '../../uilt'
 import setOriginalObject from '../setOriginalObject'
 import createObserverArr from '../createObserverArr'
+import checkModel from '../../directive/checkModel'
 
 const createObserver = ( observerdata,orginal,wue ) => {
     
@@ -11,7 +12,7 @@ const createObserver = ( observerdata,orginal,wue ) => {
 
         let observerObj;
         if( isPlaninObject(orginal[x]) ){
-            observerObj = createObserver( Object.create(null),orginal[x] )
+            observerObj = createObserver( Object.create(null),orginal[x],wue )
         }
 
         let observerArr;
@@ -20,20 +21,20 @@ const createObserver = ( observerdata,orginal,wue ) => {
             /** 顺序很重要 这里 不然会触发无畏的 observer */
             let arr = deep( item );
             item.forEach((cItem,cIndex) => {
-                if(isObject(cItem)) arr.splice( cIndex,1, createObserver( Object.create(null),cItem ) )
-                if(isArray(cItem))  arr.splice( cIndex,1, createObserArrItem( item,cIndex,cItem ) )
+                if(isObject(cItem)) arr.splice( cIndex,1, createObserver( Object.create(null),cItem,wue ) )
+                if(isArray(cItem))  arr.splice( cIndex,1, createObserArrItem( item,cIndex,cItem,wue ) )
             })
-            arr = createObserverArr( parentArr,index,arr,item )
+            arr = createObserverArr( parentArr,index,arr,item,wue )
             return arr;
         }
 
         if( isArray(orginal[x]) ){
             observerArr = deep( orginal[x] )
             orginal[x].forEach((item,index) => { 
-                if(isObject(item)) observerArr.splice( index,1, createObserver( Object.create(null),item ) )
-                if(isArray(item))  observerArr.splice( index,1, createObserArrItem(orginal[x],index,item) )
+                if(isObject(item)) observerArr.splice( index,1, createObserver( Object.create(null),item,wue ) )
+                if(isArray(item))  observerArr.splice( index,1, createObserArrItem( orginal[x],index,item,wue ) )
             })
-            observerArr = createObserverArr( orginal,x,observerArr,orginal[x] )
+            observerArr = createObserverArr( orginal,x,observerArr,orginal[x],wue )
         }
 
         Object.defineProperty(observerdata,x,{
@@ -43,7 +44,8 @@ const createObserver = ( observerdata,orginal,wue ) => {
                 return orginal[x];
             },
             set(newVal){
-                observer(orginal,x,newVal,wue);               
+                observer(orginal,x,newVal,wue);
+                checkModel(orginal[x],x,newVal)              
             },
             enumerable : true,
             configurable : true

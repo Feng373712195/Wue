@@ -1,9 +1,9 @@
-import { isTrue,isFalse } from '../../uilt'
+import { isTrue,isFalse,isEmptyObject } from '../../uilt'
 import { parseAst } from '../../parse'
 
 const welseif = (vnode,propkey,data,wue,wIfManager) => {
 
-    if( !wue.init_render ){
+    if( isEmptyObject(data) ){
         return vnode;
     }
     

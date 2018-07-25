@@ -12,6 +12,8 @@ import wfor from '../directive/w-for'
 import wmodel from '../directive/w-model'
 
 import ModelsMap from "./modelsMap"
+import { setTemplateValue } from '../parse'
+import { isVText } from "../virtual-dom"
 
 // wif 管理对象 
 const wIfManager = {
@@ -82,11 +84,11 @@ const handleWueInDirective = (vnode,data,wue) =>{
     const props = vnode.properties;
     Object.keys(props.attributes).forEach(propkey=>{
         if( !(propkey === 'w-on' && isVText(vnode)) ){
-            if( propkey.match(/^w-bind|^\:/) ) wueInDirective['w-bind'].apply(wue,[vnode,propkey,data,wue])
-            else if( propkey.match(/^w-on:|^\@/) ) wueInDirective['w-on'].apply(wue,[vnode,propkey,data,wue,entrustHandle])
-            else if( propkey === 'w-model' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,modelMap,wModelHandle])
-            else if( propkey === 'w-if' || propkey === 'w-else' || propkey === 'w-else-if' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,wIfManager])
-            else wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue])
+            if( propkey.match(/^w-bind|^\:/) ) vnode = wueInDirective['w-bind'].apply(wue,[vnode,propkey,data,wue])
+            else if( propkey.match(/^w-on:|^\@/) ) vnode = wueInDirective['w-on'].apply(wue,[vnode,propkey,data,wue,entrustHandle])
+            else if( propkey === 'w-model' ) vnode = wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,modelMap,wModelHandle])
+            else if( propkey === 'w-if' || propkey === 'w-else' || propkey === 'w-else-if' ) vnode = wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,wIfManager])
+            else if( wueInDirective[propkey] ) vnode = wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue])
         }
     })
 

@@ -1,3 +1,4 @@
+const acorn = require('acorn')
 import { isObject,isArray } from '../../uilt'
 import getTemplateValue from '../getTemplateValue'
 
@@ -16,7 +17,7 @@ const findIdentifier = (node,data) => {
               
               if( node[k].hasOwnProperty('type') && node[k].type === 'Identifier' ){
 
-                  console.log('Identifier');
+                  // console.log('Identifier');
 
                   const curt = node[k];
                   if( !Object.assign({},data).hasOwnProperty(curt.name) ){
