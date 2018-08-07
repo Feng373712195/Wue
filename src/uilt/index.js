@@ -9,9 +9,11 @@ import isNumber from './isNumber'
 import isString from './isString'
 import isTrue from './isTrue'
 import isFalse from './isFalse'
+import isBoolean from './isBoolean'
 
 import getElement from './getElement'
 import deep from './deep'
+import prop from './prop'
 import hyphenTrunHump from './hyphenTrunHump'
 import humpTrunHyphen from './humpTrunHyphen'
 import serialize from './serialize'
@@ -28,8 +30,10 @@ module.exports = {
     isString,
     isTrue,
     isFalse,
+    isBoolean,
     getElement,
     deep,
+    prop,
     humpTrunHyphen,
     hyphenTrunHump,
     serialize

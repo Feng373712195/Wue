@@ -1,16 +1,17 @@
 import initEl from './initEl'
+import firstMount from './firstMount'
+
 import checkOption from './checkOption'
 import components from './componentsMap'
 import { create } from '../virtual-dom'
 import createObserver from '../observer/createObserver'
-import { deep } from '../uilt'
+import { deep,isObject } from '../uilt'
 import renderVNode from '../render-vnode'
-import isObject from '../uilt/isObject';
 
 class Wue{
     
     constructor(option){
-
+        
         checkOption(option)
         const { el,data,methods } = option
         initEl.bind(this,el)()
@@ -30,10 +31,13 @@ class Wue{
         this.old_data = deep( data );
 
         // 模板未被替换的vnode
-        this.norender_vnode = new renderVNode( this.el ).render( {},this );
+        this.norender_vnode = new renderVNode(this.el).render( {},this )
 
         // 模板未被替换的dom
         this.norender_dom = create( this.norender_vnode );
+
+        // 上一次渲染的 vnode 2018.7.23 试验
+        this.current_vnode = new renderVNode(this.el).render( {},this )
 
         // 当前视图的vnode 
         this.vnode = new renderVNode(this.el).render( this.data,this );
@@ -45,8 +49,12 @@ class Wue{
 
         initEl.bind(this,el)()
 
+        /** 初次挂载调用方法 */
+        firstMount.forEach( f => f.apply(this.el,[this.el]) )
         /** 初始化渲染完毕 删除这个属性 */
         this.init_render = true;
+        
+
     }
 }
 
@@ -65,7 +73,7 @@ Wue.prototype.$set = function(target, key, value){
     }
 
     original[key] = value 
-    createObserver( this.data,original )
+    createObserver( this.data,original,this )
     
 }
 

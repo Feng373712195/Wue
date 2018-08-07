@@ -40,7 +40,17 @@ module.exports = {
         hot:true,
         contentBase:__distDirname,
         publicPath: "/dist/",
-        port:8081
+        port:8081,
+        proxy:{
+            '/distributor': {    //将www.exaple.com印射为/apis
+                target: 'http://192.168.1.56',  // 接口域名
+                secure: false,  // 如果是https接口，需要配置这个参数
+                changeOrigin: true,  //是否跨域
+                pathRewrite: {
+                    '^/distributor': ''   //需要rewrite的,
+                }             
+            }
+        }
     },
     plugins:[
         new webpack.DefinePlugin({

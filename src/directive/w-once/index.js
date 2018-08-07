@@ -6,6 +6,6 @@ const wonce = (vnode,propkey,data,wue) => {
     
     vnode.nodiff = true;
     return vnode;
-
-
 }
+
+export default wonce

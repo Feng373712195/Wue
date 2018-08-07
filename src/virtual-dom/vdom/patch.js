@@ -1,5 +1,5 @@
 var document = require("global/document")
-var { isArray } = require("../../uilt")
+var isArray = require("x-is-array")
 
 var render = require("./create-element")
 var domIndex = require("./dom-index")

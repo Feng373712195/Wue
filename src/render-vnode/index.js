@@ -9,7 +9,7 @@ class renderVNode{
         this.root = dom
         this.vnode = null
 
-         /*是否是w-for渲染的元素*/
+        /*是否是w-for渲染的元素*/
         this.isForRender = false;
         /** 是否嵌套的w-for模板 */
         this.delayForRender = false;

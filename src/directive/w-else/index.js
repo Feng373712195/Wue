@@ -1,6 +1,8 @@
+import { isEmptyObject } from '../../uilt'
+
 const welse = (vnode,propkey,data,wue,wIfManager) => {
 
-    if( !wue.init_render ){
+    if( isEmptyObject(data) ){
         return vnode;
     }
 

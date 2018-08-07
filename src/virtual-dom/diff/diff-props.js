@@ -1,4 +1,4 @@
-var { isObject } = require("../../uilt")
+var isObject = require("is-object")
 
 module.exports = diffProps
 

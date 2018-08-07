@@ -41,4 +41,6 @@ class wmodelsMap{
 
 }
 
-export default wmodelsMap
+const wm = new wmodelsMap();
+
+export default wm

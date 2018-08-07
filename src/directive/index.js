@@ -11,7 +11,9 @@ import welseif from '../directive/w-else-if'
 import wfor from '../directive/w-for'
 import wmodel from '../directive/w-model'
 
-import ModelsMap from "./modelsMap"
+import modelsMap from "./modelsMap"
+import { getTemplateValue,setTemplateValue } from '../parse'
+import { isBoolean,isArray,prop } from '../uilt'
 
 // wif 管理对象 
 const wIfManager = {
@@ -45,7 +47,13 @@ const wModelHandle = function(data,modle,wue,InputType,e){
         }
         if( InputType === 'select' ){
             const selectedIndex = this.options.selectedIndex;
-            setTemplateValue(wue.data,modle,this.options[selectedIndex].text)
+            const isMultiple = prop(this,'multiple')
+            if( isMultiple ){
+                const selecteds = [...this.options].map(option => prop(option,'selected') && option.text ).filter(v => v);
+                setTemplateValue(wue.data,modle,selecteds)
+            }else{
+                setTemplateValue(wue.data,modle,this.options[selectedIndex].text)
+            }
         }
     }
 }
@@ -58,9 +66,6 @@ const entrustHandle = function(node,handles,wue,e){
         }
     }
 }
-
-// wModel 存放wmodel Map 
-const modelMap = new ModelsMap();
 
 /* wue指令管理者 */
 const wueInDirective = { 
@@ -82,11 +87,11 @@ const handleWueInDirective = (vnode,data,wue) =>{
     const props = vnode.properties;
     Object.keys(props.attributes).forEach(propkey=>{
         if( !(propkey === 'w-on' && isVText(vnode)) ){
-            if( propkey.match(/^w-bind|^\:/) ) wueInDirective['w-bind'].apply(wue,[vnode,propkey,data,wue])
-            else if( propkey.match(/^w-on:|^\@/) ) wueInDirective['w-on'].apply(wue,[vnode,propkey,data,wue,entrustHandle])
-            else if( propkey === 'w-model' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,modelMap,wModelHandle])
-            else if( propkey === 'w-if' || propkey === 'w-else' || propkey === 'w-else-if' ) wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,wIfManager])
-            else wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue])
+            if( propkey.match(/^w-bind|^\:/) ) vnode = wueInDirective['w-bind'].apply(wue,[vnode,propkey,data,wue])
+            else if( propkey.match(/^w-on:|^\@/) ) vnode = wueInDirective['w-on'].apply(wue,[vnode,propkey,data,wue,entrustHandle])
+            else if( propkey === 'w-model' ) vnode = wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,modelsMap,wModelHandle])
+            else if( propkey === 'w-if' || propkey === 'w-else' || propkey === 'w-else-if' ) vnode = wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue,wIfManager])
+            else if( wueInDirective[propkey] ) vnode = wueInDirective[propkey].apply(wue,[vnode,propkey,data,wue])
         }
     })
 

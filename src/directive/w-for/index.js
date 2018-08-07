@@ -1,9 +1,18 @@
+import { parseWforAst,findTmpText } from '../../parse'
+import { isNumber,isEmptyObject } from '../../uilt'
+import { VNode,VText,isVText } from '../../virtual-dom'
+import handleWueInDirective from '../../directive'
+
 const wfor = (vnode,propkey,data,wue) =>{
     
-    if( !wue.init_render ){
+    // if( !wue.init_render ){
+    //     return vnode;
+    // }
+
+    if(isEmptyObject(data)){
         return vnode;
     }
-
+    
     // w-for 嵌套 w-for // 暂时解决
     // w-for 中的 w-bind
     // w-for 中有 w-model 双向数据绑定  
@@ -37,30 +46,35 @@ const wfor = (vnode,propkey,data,wue) =>{
     }
 
     const forRenderHandler = (wue,node,fordata,data) =>{
+        const blendData = Object.assign(data,fordata);
+        const nestForHandler = [];
 
-    const blendData = Object.assign(data,fordata);
-    const nestForHandler = [];
-    node.children.map((childnode,index)=>{
+        node.children.map((childnode,index)=>{
+            
             if( isVtext(childnode) && childnode.text.trim() ){
                 childnode.text = findTmpText(childnode.text,blendData)
                 return childnode;
             }
+
             /*是否嵌套for 的渲染操作*/
+            // not for childnode
             if( isVnode(childnode) && !childnode.properties.attributes['w-for'] ){
+                childnode = handleWueInDirective(childnode,blendData,wue);
+                if( isVText(childnode) && childnode.text === '' ){ node.children.splice(index,1,childnode); return }
                 return forRenderHandler(wue,childnode,fordata,data);
+            // is for childnode
             }else if( isVnode(childnode) && childnode.properties.attributes['w-for']  ){
                 /** 嵌套循环if */
-                let forVnodes = handleWueInDirective(wue,blendData,childnode);
+                let forVnodes = handleWueInDirective(childnode,blendData,wue);
                 nestForHandler.push( () => { node.children.splice.apply(node.children,[index,1,...forVnodes]) });
             }else{
                 return childnode;
             }
-    })
+        })
 
-    nestForHandler.map( h => { h(); h = null; return h } ).filter( v => v );
 
-    return node;
-
+        nestForHandler.map( h => { h(); h = null; return h } ).filter( v => v );
+        return node;
     } 
 
     let forvnodes = [];
@@ -79,7 +93,7 @@ const wfor = (vnode,propkey,data,wue) =>{
         }
     }else{
         Object.keys(d).forEach((key,index)=>{
-
+            
             let fordata = {};
             i && ( fordata[i] = index );
             k && ( fordata[k] = key );
@@ -93,3 +107,5 @@ const wfor = (vnode,propkey,data,wue) =>{
 
     return forvnodes; 
 }
+
+export default wfor

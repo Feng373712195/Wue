@@ -2,6 +2,7 @@ import observer from '../observer'
 import { deep,isPlaninObject,isArray,isObject } from '../../uilt'
 import setOriginalObject from '../setOriginalObject'
 import createObserverArr from '../createObserverArr'
+import checkModel from '../../directive/checkModel'
 
 const createObserver = ( observerdata,orginal,wue ) => {
     
@@ -27,23 +28,33 @@ const createObserver = ( observerdata,orginal,wue ) => {
             return arr;
         }
 
-        if( isArray(orginal[x]) ){
-            observerArr = deep( orginal[x] )
+        const createObserArr = (orginal,x) => {
+            const arr = deep( orginal[x] )
             orginal[x].forEach((item,index) => { 
-                if(isObject(item)) observerArr.splice( index,1, createObserver( Object.create(null),item,wue ) )
-                if(isArray(item))  observerArr.splice( index,1, createObserArrItem(orginal[x],index,item,wue  ) )
+                if(isObject(item)) arr.splice( index,1, createObserver( Object.create(null),item,wue ) )
+                if(isArray(item))  arr.splice( index,1, createObserArrItem( orginal[x],index,item,wue ) )
             })
-            observerArr = createObserverArr( orginal,x,observerArr,orginal[x],wue )
+            return createObserverArr( orginal,x,arr,orginal[x],wue )
+        }
+
+        if( isArray(orginal[x]) ){
+            observerArr = createObserArr(orginal,x)
         }
 
         Object.defineProperty(observerdata,x,{
             get(){
-                if( isArray(orginal[x])  ) return observerArr;
-                if( isObject(orginal[x]) ) return observerObj;
+                if( isArray(orginal[x])  ){
+                  // 当重新赋值为数组 把数组进行数据拦截
+                  return observerArr ? observerArr : createObserArr(orginal,x)
+                }
+                if( isObject(orginal[x]) ){
+                     return observerObj
+                }
                 return orginal[x];
             },
             set(newVal){
-                observer(orginal,x,newVal,wue);               
+                observer(orginal,x,newVal,wue);
+                checkModel(orginal,x,newVal)              
             },
             enumerable : true,
             configurable : true

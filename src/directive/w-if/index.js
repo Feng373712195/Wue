@@ -1,14 +1,14 @@
-import { isTrue,isFalse } from '../../uilt'
+import { isTrue,isFalse,isEmptyObject } from '../../uilt'
 import { parseAst } from '../../parse'
+import { VText } from '../../virtual-dom'
 
 const wif = (vnode,propkey,data,wue,wIfManager) => {
 
-    if( !wue.init_render ){
+    if( isEmptyObject(data) ){
         return vnode;
     }
     
-    const { wIfcount,wIftodo } = wIfManager
-
+    const { wIftodo } = wIfManager
     //统计wue 执行过多少次 w-if
     wIfManager.wIfcount++;
 
@@ -16,18 +16,19 @@ const wif = (vnode,propkey,data,wue,wIfManager) => {
     const props = vnode.properties;
     const condition = props.attributes[propkey];
     const parseCondition = parseAst(condition,data)                                                                  
-    wIftodo.push( {} );
-    const currtIftodo = wIftodo[wIfcount-1];
+    wIftodo.push({});
+    const currtIftodo = wIftodo[wIfManager.wIfcount-1];
+
     currtIftodo.count = 1;
     currtIftodo.ifconditions = [ isFalse(parseCondition) ? false : isTrue(parseCondition) ];
     currtIftodo.renderNode = function(vnode){
         const idx = this.ifconditions.indexOf(true);
         let count = this.count;
         const rendernode = ( idx !== -1 && idx === (count-1) ) ? vnode : new VText('');
-        
+
         ++this.count;
         return rendernode;
-    } 
+    }
 
     return currtIftodo.renderNode.bind(currtIftodo,vnode)();
 }
