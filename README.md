@@ -61,7 +61,7 @@ VUE轮子
     ├── init                    # Wue初始化源码
     ├── observer                # Wue处理数据响应源码
     ├── parse                   # 解析AST源码
-    ├── render-vnode            # 解析vtree源码
+    ├── render-vnode            # 处理vtree源码
     ├── uilt                    # 工具模块
     ├── virtual-dom             # virtual-dom源码
     ├── warn                    # 错误警告模块
