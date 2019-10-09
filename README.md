@@ -1,36 +1,51 @@
-# 玩车教授PC版
+# Wue
 
-## 架构
+VUE轮子
 
-```
-页面模式：SSR
-模块化工具： Webpack4 
-自动化工具： Gulp
-UI框架： Element-UI
-请求框架：Axios
-工具库：Lodash
-视图渲染框架：Vue
-统一状态管理工具：Vuex
-前端路由：Vue-Router
-开发模式：Vue-Loader ，SCSS
-代码规范检查：EsLint 、StyleLint
-代码规范:  eslint-plugin-vue
-Vsode插件：Eslint、Stylelint、Vetur 、 Prettier
-调试工具：Vue-devtoos
-测试框架：Jest
-Mock：MockJS
-```
+## 文档
+
+### 指令
+
+#### w-bind 
+
+#### w-if w-else w-else-if
+
+#### w-for
+
+#### w-html
+
+#### w-for
+
+#### w-modle
+
+#### w-on
+
+#### w-once
+
+#### w-show
+
+#### w-text
+
 
 ## 文件目录架构
 
 ```
 ├── /build/                     # webpack构建配置
-├── /config/                    # 配置
-├── mock.js                     # Mock接口配置
-├── server.js	                # 服务器入口文件
-├── router.js                   # 服务器路由
-├── /src/                       # 前端代码文件
-├── gulpfile.js                 # gulp配置文件
+├── /dist/                      # 构建文件
+├── /src/                       # WUE源码入口
+    ├── directive               # Wue指令源码
+    ├── init                    # Wue初始化源码
+    ├── observer                # Wue处理数据响应源码
+    ├── parse                   # 解析AST源码
+    ├── render-vnode            # 解析vtree源码
+    ├── uilt                    # 工具模块
+    ├── virtual-dom             # virtual-dom源码
+    ├── warn                    # 错误警告模块
+    ├── index                   # Wue总入口
+├── /view/                      # 前端代码文件
+    ├── /index.html             # 测试使用html    
+    |—— /index.js               # 测试使用js
+├── app.js	                    # 服务器入口文件
 ├── package.json                # 模块列表
 ├── README.md                   # 描述文件
 ```
@@ -39,7 +54,7 @@ Mock：MockJS
 
 ### 开发
 ```
-npm run dev
+npm run dev-server
 ```
 
 ### 构建
@@ -49,5 +64,5 @@ npm run build
 
 ### 启动服务器
 ```
-npm run start
+npm run server
 ```
