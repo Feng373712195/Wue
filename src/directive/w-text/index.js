@@ -1,20 +1,18 @@
-import { getTemplateValue } from '../../parse' 
+import { getTemplateValue } from '../../parse';
 
-const wtext = (vnode,propkey,data,wue) => {
+const wtext = (vnode, propkey, data, wue) => {
+  // if( !wue.init_render ){
+  //     return vnode;
+  // }
 
-    // if( !wue.init_render ){
-    //     return vnode;
-    // }
+  // w-text 属于初次渲染范围
 
-    // w-text 属于初次渲染范围
+  const props = vnode.properties;
+  const modle = props.attributes[propkey];
 
-    let props = vnode.properties;
-    let modle = props.attributes[propkey];
+  const ret = getTemplateValue(data, modle, modle);
+  props.innerText = ret;
+  return vnode;
+};
 
-    var ret = getTemplateValue(data,modle,modle)
-    props.innerText = ret;
-    return vnode;
-
-}
-
-export default wtext
+export default wtext;
