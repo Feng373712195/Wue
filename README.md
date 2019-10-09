@@ -69,7 +69,7 @@ VUE轮子
 ├── /view/                      # 前端代码文件
     ├── /index.html             # 测试使用html    
     |—— /index.js               # 测试使用js
-├── app.js	                    # 服务器入口文件
+├── app.js	                  # 服务器入口文件
 ├── package.json                # 模块列表
 ├── README.md                   # 描述文件
 ```
@@ -78,7 +78,7 @@ VUE轮子
 
 ### 开发
 ```
-npm run dev-server
+npm run dev-server //localhost:8080
 ```
 
 ### 构建
@@ -88,5 +88,5 @@ npm run build
 
 ### 启动服务器
 ```
-npm run server
+npm run server //localhost:8080
 ```
