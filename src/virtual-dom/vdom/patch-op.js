@@ -1,135 +1,118 @@
-var applyProperties = require("./apply-properties")
+const applyProperties = require('./apply-properties');
 
-var VPatch = require("../vnode/vpatch.js")
+const VPatch = require('../vnode/vpatch.js');
 
-module.exports = applyPatch
+module.exports = applyPatch;
 
 function applyPatch(vpatch, domNode, renderOptions) {
-    
-    var type = vpatch.type
-    var vNode = vpatch.vNode
-    var patch = vpatch.patch
+  const { type } = vpatch;
+  const { vNode } = vpatch;
+  const { patch } = vpatch;
 
-    switch (type) {
-        case VPatch.REMOVE:
-            return removeNode(domNode, vNode)
-        case VPatch.INSERT:
-            return insertNode(domNode, patch, renderOptions)
-        case VPatch.VTEXT:
-            return stringPatch(domNode, vNode, patch, renderOptions)
-        case VPatch.VNODE:
-            return vNodePatch(domNode, vNode, patch, renderOptions)
-        case VPatch.ORDER:
-            reorderChildren(domNode, patch)
-            return domNode
-        case VPatch.PROPS:
-            applyProperties(domNode, patch, vNode.properties)
-            return domNode
-        default:
-            return domNode
-    }
+  switch (type) {
+    case VPatch.REMOVE:
+      return removeNode(domNode, vNode);
+    case VPatch.INSERT:
+      return insertNode(domNode, patch, renderOptions);
+    case VPatch.VTEXT:
+      return stringPatch(domNode, vNode, patch, renderOptions);
+    case VPatch.VNODE:
+      return vNodePatch(domNode, vNode, patch, renderOptions);
+    case VPatch.ORDER:
+      reorderChildren(domNode, patch);
+      return domNode;
+    case VPatch.PROPS:
+      applyProperties(domNode, patch, vNode.properties);
+      return domNode;
+    default:
+      return domNode;
+  }
 }
 
 function removeNode(domNode, vNode) {
+  console.log('removeNode');
 
-    console.log('removeNode');
+  const { parentNode } = domNode;
+  if (parentNode) {
+    parentNode.removeChild(domNode);
+  }
 
-    var parentNode = domNode.parentNode
-    if (parentNode) {
-        parentNode.removeChild(domNode)
-    }
-
-    return null
+  return null;
 }
 
 function insertNode(parentNode, vNode, renderOptions) {
+  const newNode = renderOptions.render(vNode, renderOptions);
 
-    console.log('insertNode');
+  if (parentNode) {
+    parentNode.appendChild(newNode);
+  }
 
-    var newNode = renderOptions.render(vNode, renderOptions)
-
-    if (parentNode) {
-        parentNode.appendChild(newNode)
-    }
-
-    return parentNode
+  return parentNode;
 }
 
 function stringPatch(domNode, leftVNode, vText, renderOptions) {
-    console.log('stringPatch');
+  let newNode;
 
-    var newNode
+  if (domNode.nodeType === 3) {
+    domNode.replaceData(0, domNode.length, vText.text);
+    newNode = domNode;
+  } else {
+    console.log(2);
 
-    if (domNode.nodeType === 3) {
-        domNode.replaceData(0, domNode.length, vText.text)
-        newNode = domNode
-    } else {
+    const { parentNode } = domNode;
+    newNode = renderOptions.render(vText, renderOptions);
 
-        console.log(2)
-
-        var parentNode = domNode.parentNode
-        newNode = renderOptions.render(vText, renderOptions)
-
-        if (parentNode && newNode !== domNode) {
-            parentNode.replaceChild(newNode, domNode)
-        }
+    if (parentNode && newNode !== domNode) {
+      parentNode.replaceChild(newNode, domNode);
     }
+  }
 
-    leftVNode.destroy && leftVNode.destroy.bind(null,domNode)();
+  leftVNode.destroy && leftVNode.destroy.bind(null, domNode)();
 
-    return newNode
+  return newNode;
 }
 
 
 function vNodePatch(domNode, leftVNode, vNode, renderOptions) {
-    
-    console.log('vNodePatch');
+  const { parentNode } = domNode;
+  const newNode = renderOptions.render(vNode, renderOptions);
 
-    var parentNode = domNode.parentNode
-    var newNode = renderOptions.render(vNode, renderOptions)
+  if (parentNode && newNode !== domNode) {
+    parentNode.replaceChild(newNode, domNode);
+  }
 
-    if (parentNode && newNode !== domNode) {
-        parentNode.replaceChild(newNode, domNode)
-    }
-
-    return newNode
+  return newNode;
 }
 
 function reorderChildren(domNode, moves) {
-    
-    console.log('reorderChildren');
-    
-    var childNodes = domNode.childNodes
-    var keyMap = {}
-    var node
-    var remove
-    var insert
+  const { childNodes } = domNode;
+  const keyMap = {};
+  let node;
+  let remove;
+  let insert;
 
-    for (var i = 0; i < moves.removes.length; i++) {
-        remove = moves.removes[i]
-        node = childNodes[remove.from]
-        if (remove.key) {
-            keyMap[remove.key] = node
-        }
-        domNode.removeChild(node)
+  for (let i = 0; i < moves.removes.length; i++) {
+    remove = moves.removes[i];
+    node = childNodes[remove.from];
+    if (remove.key) {
+      keyMap[remove.key] = node;
     }
+    domNode.removeChild(node);
+  }
 
-    var length = childNodes.length
-    for (var j = 0; j < moves.inserts.length; j++) {
-        insert = moves.inserts[j]
-        node = keyMap[insert.key]
-        // this is the weirdest bug i've ever seen in webkit
-        domNode.insertBefore(node, insert.to >= length++ ? null : childNodes[insert.to])
-    }
+  let { length } = childNodes;
+  for (let j = 0; j < moves.inserts.length; j++) {
+    insert = moves.inserts[j];
+    node = keyMap[insert.key];
+    // this is the weirdest bug i've ever seen in webkit
+    domNode.insertBefore(node, insert.to >= length++ ? null : childNodes[insert.to]);
+  }
 }
 
 function replaceRoot(oldRoot, newRoot) {
+  if (oldRoot && newRoot && oldRoot !== newRoot && oldRoot.parentNode) {
+    oldRoot.parentNode.replaceChild(newRoot, oldRoot);
+  }
 
-    console.log('replaceRoot');
-
-    if (oldRoot && newRoot && oldRoot !== newRoot && oldRoot.parentNode) {
-        oldRoot.parentNode.replaceChild(newRoot, oldRoot)
-    }
-
-    return newRoot;
+  return newRoot;
 }

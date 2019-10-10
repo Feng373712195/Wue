@@ -16,8 +16,8 @@ const wue = new Wue({
     check: [1, 2],
   },
   methods: {
-    hello() {
-      console.log('hello');
+    hello(value) {
+      console.log('hello', value);
       wue.data.text = { x: 1 };
       console.log(wue.data);
     },

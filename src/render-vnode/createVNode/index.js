@@ -13,7 +13,8 @@ const createVNode = function (tagName, properties, children, data, wue, key) {
   }
 
   let vnode = new VNode(tagName, properties, children, key);
-  vnode = this.delayForRender ? vnode : handleWueInDirective(vnode, data, wue);
+  // vnode = this.delayForRender ? vnode : handleWueInDirective(vnode, data, wue);
+  vnode = handleWueInDirective(vnode, data, wue);
   return vnode;
 };
 

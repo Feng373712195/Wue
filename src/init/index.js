@@ -35,7 +35,7 @@ class Wue {
     this.norender_dom = create(this.norender_vnode);
 
     // 上一次渲染的 vnode 2018.7.23 试验
-    this.current_vnode = new renderVNode(this.el).render({}, this);
+    // this.current_vnode = new renderVNode(this.el).render({}, this);
 
     // 当前视图的vnode
     this.vnode = new renderVNode(this.el).render(this.data, this);

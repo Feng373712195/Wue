@@ -9,18 +9,16 @@ const observer = (setdata, key, newval, wue) => {
 
   if (time) return;
 
-  console.log('observer');
-
   /** 放到事件循环末尾 执行 */
   time = setTimeout(() => {
     // var currentVnode = new renderVNode( wue.norender_dom ).render( wue.old_data,wue )
     const updateVnode = new renderVNode(wue.norender_dom).render(wue.data, wue);
-    // const patches = diff( currentVnode,updateVnode );
-    const patches = diff(wue.current_vnode, updateVnode);
+    const patches = diff(wue.vnode, updateVnode);
     patch(wue.el, patches);
-    // wue.old_data = deep( wue.original_data );
-    wue.current_vnode = updateVnode;
+    // 替换成当前最新的vnode
+    wue.vnode = updateVnode;
     time = null;
+    clearTimeout(time);
   }, 0);
 };
 

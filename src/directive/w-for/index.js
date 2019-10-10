@@ -100,6 +100,8 @@ const wfor = (vnode, propkey, data, wue) => {
     });
   }
 
+  console.log(forvnodes, 'forvnodes');
+
   return forvnodes;
 };
 

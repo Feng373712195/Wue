@@ -7,11 +7,11 @@ VUE轮子
 ### options
 
 ### el 
-    类型：Element
+    类型：Element | String
     详细：Wue挂载的目标元素节点
 
 ### data
-    类型：Object
+    类型：Object | Function
     详细：Wue 实例的数据对象
 
 ### methods

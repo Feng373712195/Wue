@@ -1,4 +1,5 @@
 import escodegen from 'escodegen';
+import parseAst from '../parseAst';
 
 const acorn = require('acorn');
 
@@ -22,6 +23,7 @@ const parseWOn = (expression, data, wue) => {
     }
     if (parseBody.expression.type === 'CallExpression') {
       console.log('I m CallExpression');
+      console.log(data, 'data');
       let arg = parseBody.expression.arguments;
       const { callee: { name } } = parseBody.expression;
       if (wue.methods[name]) {

@@ -8,8 +8,14 @@
 </head>
 <body>
     <div id="one" >
-        <div class="hello" >{{msg}}</div>
-        <div>{{text}}</div>
+        <div key="111" class="hello" @click="hello"  >{{msg}}</div>
+        <div >{{text}}</div>
+        <div w-for="(item,index,key) in arr" @click="hello(index)"  >
+            {{ item  }}{{ index }}
+            <div style="margin-left:40px;" @click="hello(index+10)">
+                {{ item  }}2
+            </div>
+        </div>
     </div>
 </body>
 </html>

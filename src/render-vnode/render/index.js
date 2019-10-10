@@ -39,7 +39,7 @@ const render = function (data, wue, isprint) {
     }
   }
 
-  const returnVnode = this.createVNode(this.root.tagName, props, childsVNode, data, wue, getNodeKey(props.attributes));
+  const returnVnode = this.createVNode(this.root.tagName, props, childsVNode, data, wue, getNodeKey(props.attributes, data));
 
   /** 是否组件对属性的处理 */
   if (wue.isComponent && (!wue.isReplaceEl)) {
