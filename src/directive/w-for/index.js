@@ -57,7 +57,10 @@ const wfor = (vnode, propkey, data, wue) => {
       // not for childnode
       if (isVnode(childnode) && !childnode.properties.attributes['w-for']) {
         childnode = handleWueInDirective(childnode, blendData, wue);
-        if (isVText(childnode) && childnode.text === '') { node.children.splice(index, 1, childnode); return; }
+        if (isVText(childnode) && childnode.text === '') {
+          node.children.splice(index, 1, childnode);
+          return;
+        }
         return forRenderHandler(wue, childnode, fordata, data);
         // is for childnode
       } if (isVnode(childnode) && childnode.properties.attributes['w-for']) {
@@ -85,6 +88,7 @@ const wfor = (vnode, propkey, data, wue) => {
 
       const cloneVnode = deepCloneVnode(vnode);
       cloneVnode.properties.attributes['w-for'] = ret.expression;
+      console.log(fordata, 'fordata');
       forvnodes.push(forRenderHandler(wue, cloneVnode, fordata, data));
     }
   } else {
@@ -99,8 +103,6 @@ const wfor = (vnode, propkey, data, wue) => {
       forvnodes.push(forRenderHandler(wue, cloneVnode, fordata, data));
     });
   }
-
-  console.log(forvnodes, 'forvnodes');
 
   return forvnodes;
 };
