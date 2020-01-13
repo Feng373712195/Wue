@@ -51,7 +51,7 @@ const parseWOn = (expression, data, wue) => {
       console.log('I m AssignmentExpression');
       // console.log( 'expression is AssignmentExpression' );
       const { left: { name }, operator, right } = parseBody.expression;
-      console.log(`var tml = "${parseAst(name, data)}"; tml${operator}"${parseAst(escodegen.generate(right), data)}"; return tml;`);
+      // console.log(`var tml = "${parseAst(name, data)}"; tml${operator}"${parseAst(escodegen.generate(right), data)}"; return tml;`);
       const handle = new Function(`var tml = "${parseAst(name, data)}"; tml${operator}"${parseAst(escodegen.generate(right), data)}"; return tml;`);
       handles.push(setTemplateValue.bind(null, data, name, handle()));
     }
@@ -69,7 +69,6 @@ const parseWOn = (expression, data, wue) => {
       methods.forEach(node => handles = handles.concat(parseWOn(escodegen.generate(node), data, wue)));
     }
   }
-
   return handles;
 };
 

@@ -38,6 +38,7 @@ const wmodel = (vnode, propkey, data, wue, modelMap, wModelHandle) => {
   const { parent, lastKey } = findParentData(modle, data);
   const parentOriginal = parent.getOriginalObject;
 
+  // input type类型为text
   if (getInputType(tagName, type) === 'text') {
     const wModelTexts = modelMap.setWmodel('text', parentOriginal, lastKey);
 
@@ -61,6 +62,7 @@ const wmodel = (vnode, propkey, data, wue, modelMap, wModelHandle) => {
     };
   }
 
+  // input type类型为checkbox
   if (getInputType(tagName, type) === 'checkbox') {
     const wModelCheckboxs = modelMap.setWmodel('checkbox', parentOriginal, lastKey);
 
@@ -100,6 +102,7 @@ const wmodel = (vnode, propkey, data, wue, modelMap, wModelHandle) => {
     };
   }
 
+  // input type类型为radio
   if (getInputType(tagName, type) === 'radio') {
     const wModelsRadios = modelMap.setWmodel('radio', parentOriginal, lastKey);
 
@@ -128,6 +131,7 @@ const wmodel = (vnode, propkey, data, wue, modelMap, wModelHandle) => {
     };
   }
 
+  // input type类型为select
   if (getInputType(tagName, type) === 'select') {
     const wModelsSelects = modelMap.setWmodel('select', parentOriginal, lastKey);
 
@@ -137,6 +141,7 @@ const wmodel = (vnode, propkey, data, wue, modelMap, wModelHandle) => {
       wModelsSelects.indexOf(doc) === -1 && wModelsSelects.push(doc);
       /** 等待options渲染完 */
       const wmodel = getTemplateValue(wue.data, modle, modle);
+      // 浏览器会自动回收定时器
       setTimeout(() => {
         [...doc.options].forEach((option) => {
           let isSelected;

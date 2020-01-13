@@ -31,7 +31,7 @@ const parseWforAst = (expression, data) => {
 
     const nodeobj = { node: right };
     findIdentifier(nodeobj, data);
-    ret.data = nodeobj.node.value || nodeobj.value;
+    ret.data = nodeobj.value || nodeobj.value;
     ret.expression = expression.replace(/(?<=\s+in\s+)(.*)/, `${JSON.stringify(ret.data)}`);
 
     return ret;

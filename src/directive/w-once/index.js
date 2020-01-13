@@ -8,4 +8,3 @@ const wonce = (vnode, propkey, data, wue) => {
 };
 
 export default wonce;
-

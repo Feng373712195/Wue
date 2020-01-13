@@ -45,7 +45,7 @@ const wbind = (vnode, propkey, data, wue) => {
   /**
      *  我觉得 :class 与 :style 只能够传一层
      *  所以暂时不管嵌套的操作
-     * */
+  * */
 
   /* w-bind:class 的处理 */
   if (bindProp === 'class' || bindProp === 'CLASS') {
@@ -65,6 +65,7 @@ const wbind = (vnode, propkey, data, wue) => {
       throw new Error(`w-bind:class nonsupport type "${ret}" `);
     }
   }
+
   /* w-bind:style 的处理 */
   if (bindProp === 'style' || bindProp === 'STYLE') {
     const strToStyleObj = (str) => {

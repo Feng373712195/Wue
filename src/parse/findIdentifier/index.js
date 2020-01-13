@@ -27,8 +27,9 @@ const findIdentifier = (node, data) => {
         delete curt.name;
         findIdentifier(node[k], data);
       } else if (node[k].hasOwnProperty('type') && node[k].type === 'MemberExpression') {
-        // console.log('MemberExpression');
+        //  MemberExpression 类型 如 obj[propname] 或者 obj.propname
 
+        // 拼出对象属性链并返回
         const parseMemberExpressionAst = (ast, data, propstr, props) => {
           const { property, computed, object } = ast;
 
@@ -48,6 +49,7 @@ const findIdentifier = (node, data) => {
           return ast.name + propstr;
         };
 
+        // 检查是否wue的data中是否包含次属性否则抛出错误
         const checkHasOwnProperty = (props, data, propstr = 'wue.data') => {
           if (!isObject(data)) {
             return false;

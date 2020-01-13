@@ -10,37 +10,30 @@ import renderVNode from '../render-vnode';
 
 class Wue {
   constructor(option) {
+    // 检查初始化配置
     checkOption(option);
     const { el, data, methods } = option;
+    // 初始化挂载Dom节点
     initEl.bind(this, el)();
-
     // 首次渲染是否完成
     this.init_render = false;
-
     // 原data 未被wue改动过的data
     this.original_data = data;
     // wue监听的data 用户修改数据也是通过这个data
     this.data = createObserver(Object.create(null), data, this);
-
     // methods
     this.methods = methods;
-
     // 旧的data 每次diff 后就会把存到这个data
     this.old_data = deep(data);
-
     // 模板未被替换的vnode
     this.norender_vnode = new renderVNode(this.el).render({}, this);
-
     // 模板未被替换的dom
     this.norender_dom = create(this.norender_vnode);
-
     // 上一次渲染的 vnode 2018.7.23 试验
     // this.current_vnode = new renderVNode(this.el).render({}, this);
-
     // 当前视图的vnode
     this.vnode = new renderVNode(this.el).render(this.data, this);
-
-    /** 初始化完成 vnode生成真实dom挂载到节点上 */
+    // 初始化完成 vnode生成真实dom挂载到节点上
     const createDom = create(this.vnode);
 
     this.el.parentNode.replaceChild(createDom, this.el);
@@ -106,6 +99,5 @@ Wue.component = function (templateName, option) {
   /** 组件存入 WUE */
   components.set(templateName, createComponent);
 };
-
 
 export default Wue;
